@@ -1,18 +1,17 @@
 package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Client;
-import com.fertilizeo.entity.Compte;
 import com.fertilizeo.repository.CompteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CompteService {
-
+public class ClientService {
     @Autowired
-    CompteRepository compteRepository;
+    public CompteRepository compteRepository;
 
-
-
+    public Client addClient (Client client){ compteRepository.save(client);
+        return client;
+    }
 
 }

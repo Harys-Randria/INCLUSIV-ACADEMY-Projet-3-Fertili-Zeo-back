@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 @Data
 @NoArgsConstructor
@@ -22,4 +23,20 @@ public class Compte {
     private String address;
     private String nif_stat;
     private String cin;
+
+
+    // Hacher le mot de passe et le stocker dans l'attribut password
+    public void setPassword(String password) {
+
+        this.password = BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    // Vérifier si le mot de passe correspond au hachage
+    public boolean checkPassword(String password) {
+
+        return BCrypt.checkpw(password, this.password);
+    }
+
+
+
 }
