@@ -1,11 +1,13 @@
 package com.fertilizeo.service.impl;
 
 import com.fertilizeo.entity.Compte;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@Data
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
@@ -15,6 +17,7 @@ public class UserDetailsImpl implements UserDetails {
     public static UserDetailsImpl build(Compte compte) {
 
         UserDetailsImpl userDetails = new UserDetailsImpl();
+        userDetails.setCompte(compte);
 
         return userDetails;
     }
