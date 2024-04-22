@@ -55,7 +55,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers("/compte/register", "/login/**")
+                                .requestMatchers("/compte/register", "/compte/**")
                                 .permitAll()
                                 .requestMatchers(
                                         PathRequest
