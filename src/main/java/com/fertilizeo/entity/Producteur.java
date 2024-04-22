@@ -6,4 +6,8 @@ import jakarta.persistence.Entity;
 @DiscriminatorValue("4")
 @Entity
 public class Producteur extends Compte {
+
+
+
 }
+

@@ -23,6 +23,8 @@ public class Compte {
     private String address;
     private String nif_stat;
     private String cin;
+    @Transient
+    private Integer type;
 
 
     // Hacher le mot de passe et le stocker dans l'attribut password

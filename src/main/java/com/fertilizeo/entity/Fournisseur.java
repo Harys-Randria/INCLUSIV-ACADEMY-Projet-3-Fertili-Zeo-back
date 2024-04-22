@@ -6,4 +6,7 @@ import jakarta.persistence.Entity;
 @DiscriminatorValue("2")
 @Entity
 public class Fournisseur extends Compte{
+
+
+
 }

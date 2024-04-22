@@ -2,16 +2,17 @@ package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Fournisseur;
 import com.fertilizeo.repository.CompteRepository;
+import com.fertilizeo.repository.FournisseurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FournisseurService {
     @Autowired
-    CompteRepository compteRepository;
+    FournisseurRepository fournisseurRepository;
 
     public Fournisseur  addFournisseur (Fournisseur fournisseur){
-        compteRepository.save(fournisseur);
+        fournisseurRepository.save(fournisseur);
         return fournisseur;
     }
 }
