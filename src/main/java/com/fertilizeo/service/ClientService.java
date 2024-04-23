@@ -11,6 +11,9 @@ public class ClientService {
     @Autowired
     public ClientRepository clientRepository;
 
+    @Autowired
+    CompteRepository compteRepository;
+
     public Client addClient (Client client){ clientRepository.save(client);
         return client;
     }

@@ -25,6 +25,7 @@ public class Compte {
     private String cin;
     @Transient
     private Integer type;
+    private boolean isEnable;
 
 
     // Hacher le mot de passe et le stocker dans l'attribut password

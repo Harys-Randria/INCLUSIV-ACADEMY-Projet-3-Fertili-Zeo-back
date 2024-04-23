@@ -1,5 +1,6 @@
 package com.fertilizeo.repository;
 
+import com.fertilizeo.entity.Client;
 import com.fertilizeo.entity.Compte;
 import org.springframework.data.jpa.repository.JpaRepository;
 

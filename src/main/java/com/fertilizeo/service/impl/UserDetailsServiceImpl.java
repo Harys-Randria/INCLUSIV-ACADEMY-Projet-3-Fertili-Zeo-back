@@ -3,6 +3,7 @@ package com.fertilizeo.service.impl;
 import com.fertilizeo.entity.Compte;
 import com.fertilizeo.repository.CompteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,7 +22,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Compte compte = compteRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + email));
 
-
+        if (!compte.isEnable()){
+            throw new AccountExpiredException("Ce compte n'est pas activé");
+        }
         return UserDetailsImpl.build(compte);
     }
 
