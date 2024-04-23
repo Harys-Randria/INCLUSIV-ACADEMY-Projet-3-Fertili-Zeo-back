@@ -24,7 +24,7 @@ public class Compte {
     private String nif_stat;
     private String cin;
     @Transient
-    private Integer type;
+    private Integer type=1;
     private boolean isEnable;
 
 
