@@ -22,20 +22,21 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping("/compte")
 public class CompteController {
+    @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
+    CompteRepository compteRepository;
 
+    @Autowired
     CompteService compteService;
 
     @Autowired
@@ -61,7 +62,8 @@ public class CompteController {
             client.setPhone(compte.getPhone());
             client.setCin(compte.getCin());
             client.setEmail(compte.getEmail());
-            client.setPassword(compte.getPassword());
+
+            client.setPassword(encoder.encode(compte.getPassword()));
             client.setAddress(compte.getAddress());
             client.setNif_stat(compte.getNif_stat());
             clientService.addClient(client);
@@ -71,7 +73,7 @@ public class CompteController {
             fournisseur.setPhone(compte.getPhone());
             fournisseur.setCin(compte.getCin());
             fournisseur.setEmail(compte.getEmail());
-            fournisseur.setPassword(compte.getPassword());
+            fournisseur.setPassword(encoder.encode(compte.getPassword()));
             fournisseur.setAddress(compte.getAddress());
             fournisseur.setNif_stat(compte.getNif_stat());
             fournisseurService.addFournisseur(fournisseur);
@@ -81,7 +83,7 @@ public class CompteController {
             producteur.setPhone(compte.getPhone());
             producteur.setCin(compte.getCin());
             producteur.setEmail(compte.getEmail());
-            producteur.setPassword(compte.getPassword());
+            producteur.setPassword(encoder.encode(compte.getPassword()));
             producteur.setAddress(compte.getAddress());
             producteur.setNif_stat(compte.getNif_stat());
             producteurService.addProducteur(producteur);
@@ -91,7 +93,7 @@ public class CompteController {
     }
 
 
-    @PostMapping("/signin")
+    @PostMapping ("/signin")
     public ResponseEntity<?> authentication(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
