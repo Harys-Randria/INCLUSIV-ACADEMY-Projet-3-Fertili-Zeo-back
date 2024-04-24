@@ -12,6 +12,7 @@ import com.fertilizeo.entity.Producteur;
 import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.service.*;
 import com.fertilizeo.service.impl.UserDetailsImpl;
+import jakarta.persistence.Id;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -168,6 +169,16 @@ public class CompteController {
         compteRepository.save(compte);
 
         return ResponseEntity.ok("Compte activé avec succès.");
+    }
+
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<String> deleteUserAccountById(@PathVariable Long accountId) {
+        try {
+            compteRepository.deleteById(accountId);
+            return new ResponseEntity<>("Compte utilisateur supprimé avec succès", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erreur lors de la suppression du compte utilisateur : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
