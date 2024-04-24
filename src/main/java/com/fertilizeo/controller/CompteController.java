@@ -98,8 +98,10 @@ public class CompteController {
                  client.setPhone(compte.getPhone());
                  client.setCin(compte.getCin());
                  client.setEmail(compte.getEmail());
-
-                 client.setPassword(encoder.encode(compte.getPassword()));
+                 if (compte.getPassword()==null){
+                     compte.setPassword(null);
+                 } else{
+                 client.setPassword(encoder.encode(compte.getPassword()));}
                  client.setAddress(compte.getAddress());
                  client.setNif_stat(compte.getNif_stat());
                  client.setEnable(false);
