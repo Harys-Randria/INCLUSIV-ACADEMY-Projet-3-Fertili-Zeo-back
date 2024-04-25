@@ -181,4 +181,23 @@ public class CompteController {
         }
     }
 
+    @PutMapping("/{accountId}/soft-delete")
+    public ResponseEntity<String> softDeleteUserAccountById(@PathVariable Long accountId) {
+        try {
+            // Rechercher le compte par ID
+            Compte compte = compteRepository.findById(accountId)
+                    .orElseThrow(() -> new RuntimeException("Compte non trouvé avec ID : " + accountId));
+
+            // Mettre à jour isDeleted à true
+            compte.set_delete(true);
+
+            // Sauvegarder les modifications
+            compteRepository.save(compte);
+
+            return new ResponseEntity<>("Compte utilisateur marqué comme supprimé avec succès", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erreur lors de la mise à jour du compte utilisateur : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

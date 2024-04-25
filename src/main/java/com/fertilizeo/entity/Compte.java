@@ -23,6 +23,7 @@ public class Compte {
     private String address;
     private String nif_stat;
     private String cin;
+    private boolean is_delete = false;
     @Transient
     private Integer type=1;
     private boolean isEnable;
