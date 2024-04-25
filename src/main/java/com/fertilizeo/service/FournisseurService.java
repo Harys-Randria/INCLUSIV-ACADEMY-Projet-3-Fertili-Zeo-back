@@ -1,10 +1,11 @@
 package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Fournisseur;
-import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.repository.FournisseurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class FournisseurService {
@@ -15,4 +16,6 @@ public class FournisseurService {
         fournisseurRepository.save(fournisseur);
         return fournisseur;
     }
+
+
 }
