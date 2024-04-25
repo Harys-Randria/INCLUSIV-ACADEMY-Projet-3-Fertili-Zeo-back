@@ -119,18 +119,18 @@ public class CompteController {
     public ResponseEntity<?> authentication(@Valid @RequestBody LoginRequest loginRequest) {
 
         try{
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getCompte().getId(),
-                userDetails.getCompte().getName(),
-                userDetails.getCompte().getEmail()
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                    userDetails.getCompte().getId(),
+                    userDetails.getCompte().getName(),
+                    userDetails.getCompte().getEmail()
         ));
         }
         //verification si le compte est active
