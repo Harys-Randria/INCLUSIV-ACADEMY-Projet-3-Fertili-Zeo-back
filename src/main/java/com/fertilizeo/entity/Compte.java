@@ -26,6 +26,8 @@ public class Compte {
     private boolean is_delete = false;
     @Transient
     private Integer type=1;
+    @Transient
+    private String resetToken;
     private boolean isEnable;
 
 

@@ -20,6 +20,12 @@ public class CompteService {
     }
 
 
+    public Optional<Compte> findEmail1(String email) {
+        Optional<Compte> compte = compteRepository.findByEmail(email);
+        return compte;
+    }
+
+
 
 
 }

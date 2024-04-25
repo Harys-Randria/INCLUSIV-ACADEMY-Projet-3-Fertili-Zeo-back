@@ -11,8 +11,10 @@ import com.fertilizeo.entity.Fournisseur;
 import com.fertilizeo.entity.Producteur;
 import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.service.*;
+import com.fertilizeo.service.impl.ForgotPasswordRequest;
 import com.fertilizeo.service.impl.UserDetailsImpl;
 import jakarta.persistence.Id;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,8 +25,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 
 import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
@@ -60,6 +65,8 @@ public class CompteController {
 
     @Autowired
     EmailSenderService emailSenderService;
+
+
 
     @PostMapping("/add/users")
     public ResponseEntity<?> addCompte (@RequestBody Compte compte){
@@ -167,8 +174,66 @@ public class CompteController {
         // Activer le compte
         compte.setEnable(true);
         compteRepository.save(compte);
+        String frontEndUrl = "http://localhost:3000";
+        String redirectUrl = ServletUriComponentsBuilder.fromUriString(frontEndUrl)
+                .path("/")
+                .build()
+                .toUriString();
 
-        return ResponseEntity.ok("Compte activé avec succès.");
+        // Renvoyer une réponse de redirection avec le code HTTP 302
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", redirectUrl)
+                .body("Compte activé avec succès. Redirection vers " + redirectUrl);
+    }
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) throws MessagingException {
+
+
+
+
+        String email = forgotPasswordRequest.getEmail();
+
+
+        Optional<Compte> compteOptional = compteService.findEmail1(email);
+
+        if (compteOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Utilisateur non trouvé");
+        }
+
+        Compte compte = compteOptional.get();
+
+        String resetToken = UUID.randomUUID().toString();
+        compte.setResetToken(resetToken);
+
+        if(compte.getType()==1){
+            Client client = new Client();
+
+            clientService.addClient((Client) compte);
+        } else if (compte.getType()==2) {
+            fournisseurService.addFournisseur((Fournisseur) compte);
+        } else if (compte.getType()==4){
+            producteurService.addProducteur((Producteur) compte);
+        }
+
+        // Envoyer l'e-mail de réinitialisation du mot de passe
+        String resetLink = "http://localhost:3000/";
+
+
+        String htmlBody = "<html>" +
+                "<body>" +
+                "<h2>Bonjour " + compte.getName() + ",</h2>" +
+                "<p>Pour réinitialiser votre mot de passe, veuillez cliquer sur le bouton ci-dessous :</p>" +
+                "<p><a href='" + resetLink + "' style='background-color: #4CAF50; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>Réinitialiser le mot de passe</a></p>" +
+                "</body>" +
+                "</html>";
+
+        emailSenderService.sendHtmlEmail(email,
+                "REINITILIASATION DE VOTRE MOTS DE PASSE",
+                htmlBody);
+
+        return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe a été envoyé.");
     }
 
     @DeleteMapping("/{accountId}")
