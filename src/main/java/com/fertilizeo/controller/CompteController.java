@@ -5,15 +5,11 @@ import com.fertilizeo.config.jwt.JwtTokenValidationUtil;
 import com.fertilizeo.config.jwt.JwtUtils;
 import com.fertilizeo.controller.request.LoginRequest;
 import com.fertilizeo.controller.response.JwtResponse;
-import com.fertilizeo.entity.Client;
-import com.fertilizeo.entity.Compte;
-import com.fertilizeo.entity.Fournisseur;
-import com.fertilizeo.entity.Producteur;
+import com.fertilizeo.entity.*;
 import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.service.*;
+import com.fertilizeo.service.LoginHistoryService;
 import com.fertilizeo.service.impl.UserDetailsImpl;
-import jakarta.persistence.Id;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -60,6 +57,9 @@ public class CompteController {
 
     @Autowired
     EmailSenderService emailSenderService;
+
+    @Autowired
+    LoginHistoryService loginHistoryService;
 
     @PostMapping("/add/users")
     public ResponseEntity<?> addCompte (@RequestBody Compte compte){
@@ -118,26 +118,33 @@ public class CompteController {
 
 
     //Authentifaction
-    @PostMapping ("/signin")
-    public ResponseEntity<?> authentication(@Valid @RequestBody LoginRequest loginRequest) {
+    @PostMapping("/signin")
+    public ResponseEntity<?> authentication(@RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        try{
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+            // Récupérer les informations de l'utilisateur authentifié
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            // Enregistrer cette connexion dans l'entité LoginHistory
+            LoginHistory loginHistory = new LoginHistory();
+            loginHistory.setLoginDateTime(LocalDateTime.now());
+            loginHistory.setAccount(userDetails.getCompte());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getCompte().getId(),
-                userDetails.getCompte().getName(),
-                userDetails.getCompte().getEmail()
-        ));
-        }
-        //verification si le compte est active
-        catch (Exception exception){
+            loginHistoryService.addHistory(loginHistory);
+
+            // Générer le token JWT
+            String jwt = jwtUtils.generateJwtToken(authentication);
+
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                    userDetails.getCompte().getId(),
+                    userDetails.getCompte().getName(),
+                    userDetails.getCompte().getEmail()
+            ));
+        } catch (Exception exception) {
             return ResponseEntity.badRequest().body(exception.getMessage());
         }
     }

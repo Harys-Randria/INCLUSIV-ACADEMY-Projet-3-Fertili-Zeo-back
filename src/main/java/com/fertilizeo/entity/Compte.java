@@ -29,9 +29,4 @@ public class Compte {
     private boolean isEnable;
 
 
-    // Hacher le mot de passe et le stocker dans l'attribut password
-
-
-
-
 }
