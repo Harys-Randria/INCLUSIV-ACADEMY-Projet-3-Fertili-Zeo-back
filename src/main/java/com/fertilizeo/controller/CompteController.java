@@ -150,7 +150,7 @@ public class CompteController {
             String jwt = jwtUtils.generateJwtToken(authentication);
 
             return ResponseEntity.ok(new JwtResponse(jwt,
-                    userDetails.getCompte().getId(),
+                    userDetails.getCompte().getIdcompte(),
                     userDetails.getCompte().getName(),
                     userDetails.getCompte().getEmail(),
                     userDetails.getCompte().getCin(),
