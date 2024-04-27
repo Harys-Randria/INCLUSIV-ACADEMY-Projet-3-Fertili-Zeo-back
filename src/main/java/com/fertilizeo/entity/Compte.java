@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 public class Compte {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idcompte;
     private String name;
     private String email;
     private String password;
@@ -29,6 +31,9 @@ public class Compte {
     @Transient
     private String resetToken;
     private boolean isEnable;
+
+    @OneToMany(mappedBy = "compte")
+    private List<Produit> produits;
 
 
 }

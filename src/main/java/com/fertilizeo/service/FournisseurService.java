@@ -27,7 +27,7 @@ public class FournisseurService {
         Optional<Compte> fournisseurOptional = compteRepository.findById(id);
         if (fournisseurOptional.isPresent()) {
             Compte fournisseurModify = fournisseurOptional.get();
-            fournisseurModify.setId(id);
+            fournisseurModify.setIdcompte(id);
             fournisseurModify.setName(fournisseur.getName());
             fournisseurModify.setPhone(fournisseur.getPhone());
             fournisseurModify.setCin(fournisseur.getCin());

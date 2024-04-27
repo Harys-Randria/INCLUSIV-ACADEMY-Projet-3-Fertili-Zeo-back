@@ -153,9 +153,13 @@ public class CompteController {
 
 
             return ResponseEntity.ok(new JwtResponse(jwt,
-                    userDetails.getCompte().getId(),
+                    userDetails.getCompte().getIdcompte(),
                     userDetails.getCompte().getName(),
-                    userDetails.getCompte().getEmail()
+                    userDetails.getCompte().getEmail(),
+                    userDetails.getCompte().getCin(),
+                    userDetails.getCompte().getPhone(),
+                    userDetails.getCompte().getAddress(),
+                    userDetails.getCompte().getNif_stat()
             ));
 
         }
