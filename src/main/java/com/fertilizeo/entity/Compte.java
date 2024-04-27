@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 public class Compte {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idcompte;
     private String name;
     private String email;
     private String password;
@@ -26,6 +28,9 @@ public class Compte {
     @Transient
     private Integer type=1;
     private boolean isEnable;
+
+    @OneToMany(mappedBy = "compte")
+    private List<Produit> produits;
 
 
     // Hacher le mot de passe et le stocker dans l'attribut password

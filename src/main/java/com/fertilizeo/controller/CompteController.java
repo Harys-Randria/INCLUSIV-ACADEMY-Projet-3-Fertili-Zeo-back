@@ -130,7 +130,7 @@ public class CompteController {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getCompte().getId(),
+                userDetails.getCompte().getIdcompte(),
                 userDetails.getCompte().getName(),
                 userDetails.getCompte().getEmail()
         ));
