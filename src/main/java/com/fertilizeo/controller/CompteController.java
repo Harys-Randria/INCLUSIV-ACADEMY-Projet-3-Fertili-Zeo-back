@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
@@ -66,20 +67,20 @@ public class CompteController {
     @Autowired
     EmailSenderService emailSenderService;
 
+
     @Autowired
     LoginHistoryService loginHistoryService;
 
 
-
     @PostMapping("/add/users")
-    public ResponseEntity<?> addCompte (@RequestBody Compte compte){
+    public ResponseEntity<?> addCompte(@RequestBody Compte compte) {
 
         //verification si l'email est deja utiliser par un autre compte existant
-        if(compteService.findEmail(compte.getEmail())) {
+        if (compteService.findEmail(compte.getEmail())) {
             return ResponseEntity.badRequest().body("Erreur : Un compte est déjà inscrit avec l'email fourni.");
         }
-        try{
-             if (compte.getType() == 2) {
+        try {
+            if (compte.getType() == 2) {
                 Fournisseur fournisseur = new Fournisseur();
                 fournisseur.setName(compte.getName());
                 fournisseur.setPhone(compte.getPhone());
@@ -103,25 +104,26 @@ public class CompteController {
                 producteur.setEnable(false);
                 producteurService.addProducteur(producteur);
                 emailSenderService.sendEmail(producteur.getEmail(), producteur.getName());
-            }else{
-                 Client client = new Client();
-                 client.setName(compte.getName());
-                 client.setPhone(compte.getPhone());
-                 client.setCin(compte.getCin());
-                 client.setEmail(compte.getEmail());
-                 if (compte.getPassword()==null){
-                     compte.setPassword(null);
-                 } else{
-                 client.setPassword(encoder.encode(compte.getPassword()));}
-                 client.setAddress(compte.getAddress());
-                 client.setNif_stat(compte.getNif_stat());
-                 client.setEnable(false);
-                 clientService.addClient(client);
-                 emailSenderService.sendEmail(client.getEmail(), client.getName());
-             }
+            } else {
+                Client client = new Client();
+                client.setName(compte.getName());
+                client.setPhone(compte.getPhone());
+                client.setCin(compte.getCin());
+                client.setEmail(compte.getEmail());
+                if (compte.getPassword() == null) {
+                    compte.setPassword(null);
+                } else {
+                    client.setPassword(encoder.encode(compte.getPassword()));
+                }
+                client.setAddress(compte.getAddress());
+                client.setNif_stat(compte.getNif_stat());
+                client.setEnable(false);
+                clientService.addClient(client);
+                emailSenderService.sendEmail(client.getEmail(), client.getName());
+            }
 
-        return ResponseEntity.ok("Inscription réussie. Veuillez vérifier votre email pour activer votre compte.");
-    }catch (Exception e){
+            return ResponseEntity.ok("Inscription réussie. Veuillez vérifier votre email pour activer votre compte.");
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erreur lors de l'inscription : " + e.getMessage());
         }
     }
@@ -129,15 +131,18 @@ public class CompteController {
 
     //Authentifaction
     @PostMapping("/signin")
-    public ResponseEntity<?> authentication(@RequestBody LoginRequest loginRequest) {
+
+    public ResponseEntity<?> authentication(@Valid @RequestBody LoginRequest loginRequest) {
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-            // Récupérer les informations de l'utilisateur authentifié
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
 
             // Enregistrer cette connexion dans l'entité LoginHistory
             LoginHistory loginHistory = new LoginHistory();
@@ -146,15 +151,18 @@ public class CompteController {
 
             loginHistoryService.addHistory(loginHistory);
 
-            // Générer le token JWT
-            String jwt = jwtUtils.generateJwtToken(authentication);
 
             return ResponseEntity.ok(new JwtResponse(jwt,
                     userDetails.getCompte().getId(),
                     userDetails.getCompte().getName(),
                     userDetails.getCompte().getEmail()
             ));
-        } catch (Exception exception) {
+
+        }
+
+        //verification si le compte est active
+        catch (Exception exception) {
+
             return ResponseEntity.badRequest().body(exception.getMessage());
         }
     }
@@ -197,55 +205,6 @@ public class CompteController {
     }
 
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) throws MessagingException {
-
-
-
-
-        String email = forgotPasswordRequest.getEmail();
-
-
-        Optional<Compte> compteOptional = compteService.findEmail1(email);
-
-        if (compteOptional.isEmpty()) {
-            return ResponseEntity.badRequest().body("Utilisateur non trouvé");
-        }
-
-        Compte compte = compteOptional.get();
-
-        String resetToken = UUID.randomUUID().toString();
-        compte.setResetToken(resetToken);
-
-        if(compte.getType()==1){
-            Client client = new Client();
-
-            clientService.addClient((Client) compte);
-        } else if (compte.getType()==2) {
-            fournisseurService.addFournisseur((Fournisseur) compte);
-        } else if (compte.getType()==4){
-            producteurService.addProducteur((Producteur) compte);
-        }
-
-        // Envoyer l'e-mail de réinitialisation du mot de passe
-        String resetLink = "http://localhost:3000/";
-
-
-        String htmlBody = "<html>" +
-                "<body>" +
-                "<h2>Bonjour " + compte.getName() + ",</h2>" +
-                "<p>Pour réinitialiser votre mot de passe, veuillez cliquer sur le bouton ci-dessous :</p>" +
-                "<p><a href='" + resetLink + "' style='background-color: #4CAF50; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>Réinitialiser le mot de passe</a></p>" +
-                "</body>" +
-                "</html>";
-
-        emailSenderService.sendHtmlEmail(email,
-                "REINITILIASATION DE VOTRE MOTS DE PASSE",
-                htmlBody);
-
-        return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe a été envoyé.");
-    }
-
     @DeleteMapping("/{accountId}")
     public ResponseEntity<String> deleteUserAccountById(@PathVariable Long accountId) {
         try {
@@ -275,4 +234,75 @@ public class CompteController {
         }
     }
 
+    @PostMapping("/forgot-password")
+   public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) throws MessagingException {
+        String email = forgotPasswordRequest.getEmail();
+
+        // Vérifiez si l'e-mail existe dans la base de données
+        Optional<Compte> compteOptional = compteService.findEmail1(email);
+
+        if (compteOptional.isPresent()) {
+            Compte compte = compteOptional.get();
+            String resetToken = jwtUtils.generateResetToken(compte.getId());
+            // Envoyez un e-mail de réinitialisation contenant le jeton de réinitialisation
+            String resetLink = "http://localhost:3000/reset-password?token=" + resetToken; // URL pour réinitialiser le mot de passe
+            String emailBody = "Pour réinitialiser votre mot de passe, cliquez sur ce lien : " + resetLink;
+            emailSenderService.sendHtmlEmail(email, "Réinitialisation du mot de passe", emailBody); // Envoyer l'e-mail
+
+            return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe a été envoyé à l'adresse e-mail associée à votre compte.");
+
+
+        } else {
+            return ResponseEntity.badRequest().body("email non trouvé");
+
+
+        }
+
+
+
+    }
+
+    @GetMapping("/reset-password")
+    public ResponseEntity<?> getAccountDetails(@RequestParam("token") String token) {
+        // Valider le token et récupérer l'identifiant de l'utilisateur
+        Long userId = jwtUtils.validateToken(token);
+
+        // Récupérer les détails du compte de la base de données
+        Compte compte = compteService.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+
+        // Retourner les détails du compte dans la réponse
+        return ResponseEntity.ok(compte);
+    }
+
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ForgotPasswordRequest request) {
+        String token = request.getToken();
+        String newPassword = request.getPassword();
+
+        // Valider le token et récupérer l'identifiant de l'utilisateur
+        Long Id = jwtUtils.validateToken(token);
+
+        // Vérifier si l'identifiant de l'utilisateur est valide
+        Compte compte = compteService.findById(Id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+
+        // Mettre à jour le mot de passe de l'utilisateur dans la base de données
+
+
+        if (compte.getType() == 2) {
+            fournisseurService.updateFournisseurPassword((Fournisseur)compte,Id,newPassword);
+        } else if (compte.getType() == 4) {
+            producteurService.updateProducteurPassword((Producteur) compte,Id,newPassword);
+        } else {
+            clientService.updateClientPassword((Client) compte,Id,newPassword);
+        }
+
+
+        return ResponseEntity.ok("Le mot de passe a été réinitialisé avec succès.");
+    }
 }
+
+
+
