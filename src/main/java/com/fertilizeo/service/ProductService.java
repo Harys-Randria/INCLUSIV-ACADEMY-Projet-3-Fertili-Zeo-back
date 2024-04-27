@@ -53,4 +53,8 @@ public class ProductService {
         }
     }
 
+    public Produit getProduitById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
 }

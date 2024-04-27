@@ -5,16 +5,15 @@ import com.fertilizeo.config.jwt.JwtTokenValidationUtil;
 import com.fertilizeo.config.jwt.JwtUtils;
 import com.fertilizeo.controller.request.LoginRequest;
 import com.fertilizeo.controller.response.JwtResponse;
-import com.fertilizeo.entity.*;
+import com.fertilizeo.entity.Client;
+import com.fertilizeo.entity.Compte;
+import com.fertilizeo.entity.Fournisseur;
+import com.fertilizeo.entity.Producteur;
 import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.service.*;
-import com.fertilizeo.service.LoginHistoryService;
-import com.fertilizeo.service.impl.ForgotPasswordRequest;
 import com.fertilizeo.service.impl.ForgotPasswordRequest;
 import com.fertilizeo.service.impl.UserDetailsImpl;
-import jakarta.persistence.Id;
 import jakarta.mail.MessagingException;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,10 +62,6 @@ public class CompteController {
 
     @Autowired
     EmailSenderService emailSenderService;
-
-    @Autowired
-    LoginHistoryService loginHistoryService;
-
 
 
     @PostMapping("/add/users")
@@ -139,12 +132,6 @@ public class CompteController {
             // Récupérer les informations de l'utilisateur authentifié
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-            // Enregistrer cette connexion dans l'entité LoginHistory
-            LoginHistory loginHistory = new LoginHistory();
-            loginHistory.setLoginDateTime(LocalDateTime.now());
-            loginHistory.setAccount(userDetails.getCompte());
-
-            loginHistoryService.addHistory(loginHistory);
 
             // Générer le token JWT
             String jwt = jwtUtils.generateJwtToken(authentication);

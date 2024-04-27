@@ -53,6 +53,26 @@ import java.util.Optional;
             productService.deleteProduct(id);
             return ResponseEntity.ok().build();
         }
+
+        @GetMapping("/details/{id}")
+        public ResponseEntity<String> getProduitDetailsDescriptor(@PathVariable("id") Long id) {
+            Produit produit = productService.getProduitById(id);
+            if (produit != null) {
+                StringBuilder detailsBuilder = new StringBuilder();
+                detailsBuilder.append("ID: ").append(produit.getIdproduit()).append("\n");
+                detailsBuilder.append("Name: ").append(produit.getName()).append("\n");
+                detailsBuilder.append("Price: ").append(produit.getPrice()).append("\n");
+                detailsBuilder.append("Expiration Date: ").append(produit.getExpirationDate()).append("\n");
+                detailsBuilder.append("Type: ").append(produit.getType()).append("\n");
+                detailsBuilder.append("Category: ").append(produit.getCategory()).append("\n");
+                detailsBuilder.append("Description: ").append(produit.getDescription()).append("\n");
+                detailsBuilder.append("Image URL: ").append(produit.getImageUrl()).append("\n");
+                detailsBuilder.append("Details Descriptor: ").append(produit.getDetailsDecriptor()).append("\n");
+
+                return ResponseEntity.ok(detailsBuilder.toString());
+            }
+            return ResponseEntity.notFound().build();
+        }
     }
 
 

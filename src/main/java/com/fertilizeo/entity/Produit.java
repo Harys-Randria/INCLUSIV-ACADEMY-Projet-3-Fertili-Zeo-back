@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -26,6 +24,7 @@ public class Produit {
     private String category;
     private String description;
     private String imageUrl;
+    private String detailsDecriptor;
 
     @ManyToOne
     @JoinColumn(name = "id_compte")
