@@ -1,5 +1,6 @@
 package com.fertilizeo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class Compte {
     private String resetToken;
     private boolean isEnable;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "compte")
     private List<Produit> produits;
 

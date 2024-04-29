@@ -5,7 +5,9 @@ import com.fertilizeo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,9 +19,10 @@ import java.util.Optional;
         @Autowired
         private ProductService productService;
 
-        @GetMapping
-        public List<Produit> getAllProducts() {
-            return productService.getAllProducts();
+        @GetMapping("/allproduct")
+        public ResponseEntity<List<Produit>> getAllProducts() {
+            List<Produit> products= productService.getAllProducts();
+            return ResponseEntity.ok().body(products);
         }
 
         @GetMapping("/{id}")
@@ -53,7 +56,39 @@ import java.util.Optional;
             productService.deleteProduct(id);
             return ResponseEntity.ok().build();
         }
+
+        @GetMapping("/details/{id}")
+        public ResponseEntity<String> getProduitDetailsDescriptor(@PathVariable("id") Long id) {
+            Produit produit = productService.getProduitById(id);
+            if (produit != null) {
+                StringBuilder detailsBuilder = new StringBuilder();
+                detailsBuilder.append("ID: ").append(produit.getIdproduit()).append("\n");
+                detailsBuilder.append("Name: ").append(produit.getName()).append("\n");
+                detailsBuilder.append("Price: ").append(produit.getPrice()).append("\n");
+                detailsBuilder.append("Expiration Date: ").append(produit.getExpirationDate()).append("\n");
+                detailsBuilder.append("Type: ").append(produit.getType()).append("\n");
+                detailsBuilder.append("Category: ").append(produit.getCategory()).append("\n");
+                detailsBuilder.append("Description: ").append(produit.getDescription()).append("\n");
+                detailsBuilder.append("Image URL: ").append(produit.getImageUrl()).append("\n");
+                detailsBuilder.append("Details Descriptor: ").append(produit.getDetailsDecriptor()).append("\n");
+
+                return ResponseEntity.ok(detailsBuilder.toString());
+            }
+            return ResponseEntity.notFound().build();
+        }
+
+        @GetMapping("/{produitId}/image-url")
+        public String getImageUrl(@PathVariable Long idproduit) {
+            return productService.getImageUrl(idproduit);
+        }
+
+        @PostMapping("/{produitId}/upload-image")
+        public void uploadImage(@PathVariable Long idproduit, @RequestParam("image") MultipartFile imageFile) throws IOException {
+            String resizedImageUrl = productService.resizeAndCompressImage(imageFile, 300, 300, 0.8f);
+            productService.saveImageUrl(idproduit, resizedImageUrl);
+        }
     }
+
 
 
 

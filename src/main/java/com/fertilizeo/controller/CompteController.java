@@ -8,7 +8,7 @@ import com.fertilizeo.controller.response.JwtResponse;
 import com.fertilizeo.entity.*;
 import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.service.*;
-import com.fertilizeo.service.LoginHistoryService;
+
 import com.fertilizeo.service.impl.ForgotPasswordRequest;
 import com.fertilizeo.service.impl.ForgotPasswordRequest;
 import com.fertilizeo.service.impl.UserDetailsImpl;
@@ -68,12 +68,12 @@ public class CompteController {
     EmailSenderService emailSenderService;
 
 
-    @Autowired
-    LoginHistoryService loginHistoryService;
+
 
 
     @PostMapping("/add/users")
     public ResponseEntity<?> addCompte(@RequestBody Compte compte) {
+
 
         //verification si l'email est deja utiliser par un autre compte existant
         if (compteService.findEmail(compte.getEmail())) {
@@ -90,6 +90,7 @@ public class CompteController {
                 fournisseur.setAddress(compte.getAddress());
                 fournisseur.setNif_stat(compte.getNif_stat());
                 fournisseur.setEnable(false);
+
                 fournisseurService.addFournisseur(fournisseur);
                 emailSenderService.sendEmail(fournisseur.getEmail(), fournisseur.getName());
             } else if (compte.getType() == 4) {
@@ -144,12 +145,6 @@ public class CompteController {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
 
-            // Enregistrer cette connexion dans l'entité LoginHistory
-            LoginHistory loginHistory = new LoginHistory();
-            loginHistory.setLoginDateTime(LocalDateTime.now());
-            loginHistory.setAccount(userDetails.getCompte());
-
-            loginHistoryService.addHistory(loginHistory);
 
 
             return ResponseEntity.ok(new JwtResponse(jwt,
@@ -238,74 +233,7 @@ public class CompteController {
         }
     }
 
-    @PostMapping("/forgot-password")
-   public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) throws MessagingException {
-        String email = forgotPasswordRequest.getEmail();
 
-        // Vérifiez si l'e-mail existe dans la base de données
-        Optional<Compte> compteOptional = compteService.findEmail1(email);
-
-        if (compteOptional.isPresent()) {
-            Compte compte = compteOptional.get();
-            String resetToken = jwtUtils.generateResetToken(compte.getId());
-            // Envoyez un e-mail de réinitialisation contenant le jeton de réinitialisation
-            String resetLink = "http://localhost:3000/reset-password?token=" + resetToken; // URL pour réinitialiser le mot de passe
-            String emailBody = "Pour réinitialiser votre mot de passe, cliquez sur ce lien : " + resetLink;
-            emailSenderService.sendHtmlEmail(email, "Réinitialisation du mot de passe", emailBody); // Envoyer l'e-mail
-
-            return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe a été envoyé à l'adresse e-mail associée à votre compte.");
-
-
-        } else {
-            return ResponseEntity.badRequest().body("email non trouvé");
-
-
-        }
-
-
-
-    }
-
-    @GetMapping("/reset-password")
-    public ResponseEntity<?> getAccountDetails(@RequestParam("token") String token) {
-        // Valider le token et récupérer l'identifiant de l'utilisateur
-        Long userId = jwtUtils.validateToken(token);
-
-        // Récupérer les détails du compte de la base de données
-        Compte compte = compteService.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
-
-        // Retourner les détails du compte dans la réponse
-        return ResponseEntity.ok(compte);
-    }
-
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ForgotPasswordRequest request) {
-        String token = request.getToken();
-        String newPassword = request.getPassword();
-
-        // Valider le token et récupérer l'identifiant de l'utilisateur
-        Long Id = jwtUtils.validateToken(token);
-
-        // Vérifier si l'identifiant de l'utilisateur est valide
-        Compte compte = compteService.findById(Id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
-
-        // Mettre à jour le mot de passe de l'utilisateur dans la base de données
-
-
-        if (compte.getType() == 2) {
-            fournisseurService.updateFournisseurPassword((Fournisseur)compte,Id,newPassword);
-        } else if (compte.getType() == 4) {
-            producteurService.updateProducteurPassword((Producteur) compte,Id,newPassword);
-        } else {
-            clientService.updateClientPassword((Client) compte,Id,newPassword);
-        }
-
-
-        return ResponseEntity.ok("Le mot de passe a été réinitialisé avec succès.");
-    }
 }
 
 
