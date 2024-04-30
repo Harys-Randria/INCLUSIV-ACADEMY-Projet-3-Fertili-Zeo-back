@@ -1,5 +1,6 @@
 package com.fertilizeo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,5 @@ public class Produit {
 
     @ManyToOne
     @JoinColumn(name = "id_compte")
-    @JsonManagedReference
     private Compte compte;
 }

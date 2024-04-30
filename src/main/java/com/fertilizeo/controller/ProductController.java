@@ -41,7 +41,7 @@ import java.util.Optional;
             return ResponseEntity.ok().body(createdProduct);
         }
 
-        @PutMapping("/modifier/{id}")
+        @PutMapping  ("/modifier/{id}")
         public ResponseEntity<Produit> updateProduct(@PathVariable Long id, @RequestBody Produit produit) {
             Produit updatedProduct = productService.updateProduct(id, produit);
             if (updatedProduct != null) {
