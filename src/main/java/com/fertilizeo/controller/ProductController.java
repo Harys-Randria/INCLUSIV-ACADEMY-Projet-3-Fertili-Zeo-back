@@ -19,9 +19,10 @@ import java.util.Optional;
         @Autowired
         private ProductService productService;
 
-        @GetMapping
-        public List<Produit> getAllProducts() {
-            return productService.getAllProducts();
+        @GetMapping("/allproduct")
+        public ResponseEntity<List<Produit>> getAllProducts() {
+            List<Produit> products= productService.getAllProducts();
+            return ResponseEntity.ok().body(products);
         }
 
         @GetMapping("/{id}")
@@ -40,7 +41,7 @@ import java.util.Optional;
             return ResponseEntity.ok().body(createdProduct);
         }
 
-        @PutMapping("/modifier/{id}")
+        @PutMapping  ("/modifier/{id}")
         public ResponseEntity<Produit> updateProduct(@PathVariable Long id, @RequestBody Produit produit) {
             Produit updatedProduct = productService.updateProduct(id, produit);
             if (updatedProduct != null) {
