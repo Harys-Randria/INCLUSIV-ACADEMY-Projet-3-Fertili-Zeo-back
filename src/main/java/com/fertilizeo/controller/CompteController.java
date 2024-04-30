@@ -11,12 +11,9 @@ import com.fertilizeo.entity.Fournisseur;
 import com.fertilizeo.entity.Producteur;
 import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.service.*;
-
-
 import com.fertilizeo.service.impl.ForgotPasswordRequest;
 import com.fertilizeo.service.impl.UserDetailsImpl;
 import jakarta.mail.MessagingException;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +23,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -202,7 +199,6 @@ public class CompteController {
     }
 
 
-<<<<<<< HEAD
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) throws MessagingException {
 
@@ -252,8 +248,6 @@ public class CompteController {
         return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe vous a été envoyé.");
     }
 
-=======
->>>>>>> 48a2603eac385e976a40f8c1f98d8e22cad8391c
     @DeleteMapping("/{accountId}")
     public ResponseEntity<String> deleteUserAccountById(@PathVariable Long accountId) {
         try {
