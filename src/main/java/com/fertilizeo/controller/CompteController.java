@@ -231,10 +231,10 @@ public class CompteController {
                 "</html>";
 
         emailSenderService.sendHtmlEmail(email,
-                "REINITILIASATION DE VOTRE MOTS DE PASSE",
+                "REINITILIASATION DE MOT DE PASSE",
                 htmlBody);
 
-        return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe a été envoyé.");
+        return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe vous a été envoyé.");
     }
 
     @DeleteMapping("/{accountId}")
@@ -250,14 +250,14 @@ public class CompteController {
     @PutMapping("/{accountId}/soft-delete")
     public ResponseEntity<String> softDeleteUserAccountById(@PathVariable Long accountId) {
         try {
-            // Rechercher le compte par ID
+
             Compte compte = compteRepository.findById(accountId)
                     .orElseThrow(() -> new RuntimeException("Compte non trouvé avec ID : " + accountId));
 
-            // Mettre à jour isDeleted à true
+
             compte.set_delete(true);
 
-            // Sauvegarder les modifications
+
             compteRepository.save(compte);
 
             return new ResponseEntity<>("Compte utilisateur marqué comme supprimé avec succès", HttpStatus.OK);
