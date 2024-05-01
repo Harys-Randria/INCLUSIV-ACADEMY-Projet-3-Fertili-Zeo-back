@@ -14,16 +14,17 @@ import org.springframework.web.filter.CorsFilter;
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:3000")
+                    .allowedOrigins("http://localhost:3000/")
                     .allowedMethods("POST","GET","PUT","DELETE")
+                    .allowedHeaders("*")
                     .allowCredentials(true);
         }
 
         @Bean
-        public CorsFilter corsFilter() {
+       public CorsFilter corsFilter() {
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             CorsConfiguration config = new CorsConfiguration();
-            config.addAllowedOrigin("*"); // Permettre à tous les domaines d'accéder à votre backend (à adapter selon vos besoins)
+            config.addAllowedOrigin("*");
             config.addAllowedHeader("*");
             config.addAllowedMethod("*");
             source.registerCorsConfiguration("/**", config);

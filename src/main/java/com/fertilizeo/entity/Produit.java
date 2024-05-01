@@ -16,15 +16,13 @@ public class Produit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idproduit;
-
     private String name;
     private Double price;
     private LocalDate expirationDate;
     private String type;
     private String category;
     private String description;
-    private String imageUrl;
-    private String detailsDecriptor;
+    private byte[] image;
     private Integer quantity;
     private Integer seuilreapprovisionnement;
 
