@@ -1,6 +1,5 @@
 package com.fertilizeo.service;
 
-import com.fertilizeo.entity.Client;
 import com.fertilizeo.entity.Compte;
 import com.fertilizeo.repository.CompteRepository;
 import org.springframework.beans.factory.annotation.Autowired;

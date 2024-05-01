@@ -1,5 +1,6 @@
 package com.fertilizeo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,4 +30,8 @@ public class Produit {
     @ManyToOne
     @JoinColumn(name = "id_compte")
     private Compte compte;
+
+    @JsonBackReference
+    @OneToOne(mappedBy = "produit")
+    private Stock stock;
 }

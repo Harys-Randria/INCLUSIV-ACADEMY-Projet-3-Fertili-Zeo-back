@@ -13,6 +13,7 @@ import java.util.Optional;
 
 
     @RestController
+    @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/produit")
     public class ProductController {
 
@@ -85,6 +86,11 @@ import java.util.Optional;
         public void uploadImage(@PathVariable Long idproduit, @RequestParam("image") MultipartFile imageFile) throws IOException {
             String resizedImageUrl = productService.resizeAndCompressImage(imageFile, 300, 300, 0.8f);
             productService.saveImageUrl(idproduit, resizedImageUrl);
+        }
+
+        @GetMapping("/by-compte/{idCompte}")
+        public List<Produit> getProductIdsByCompteId(@PathVariable Long idCompte) {
+            return productService.getProductIdsByAccountId(idCompte);
         }
     }
 
