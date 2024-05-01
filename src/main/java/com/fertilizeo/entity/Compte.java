@@ -28,6 +28,7 @@ public class Compte {
     private String address;
     private String nif_stat;
     private String cin;
+    private byte[] photo;
     private boolean is_delete = false;
     @Transient
     private Integer type=1;

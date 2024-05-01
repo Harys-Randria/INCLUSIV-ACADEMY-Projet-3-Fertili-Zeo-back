@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 
     @RestController
     @RequestMapping("/produit")
+    @CrossOrigin(origins = "/http://localhost:3000")
     public class ProductController {
 
         @Autowired
@@ -35,10 +37,32 @@ import java.util.Optional;
             }
         }
 
+
         @PostMapping("/ajouter")
-        public ResponseEntity<Produit> createProduct(@RequestBody Produit produit) {
-            Produit createdProduct = productService.createProduct(produit);
-            return ResponseEntity.ok().body(createdProduct);
+        public ResponseEntity<Produit> createProduct(@RequestParam("image") MultipartFile file,
+                                                     @RequestParam("name") String prodName,
+                                                     @RequestParam("price") double prodPrice,
+                                                     @RequestParam("type") String type,
+                                                     @RequestParam("category") String category,
+                                                     @RequestParam("description") String descProduct,
+                                                     @RequestParam("expirationDate")LocalDate dateExpiration) {
+            Produit newProduct = new Produit();
+            newProduct.setName(prodName);
+            newProduct.setPrice(prodPrice);
+            newProduct.setType(type);
+            newProduct.setCategory(category);
+            newProduct.setDescription(descProduct);
+            newProduct.setExpirationDate(dateExpiration);
+            try{
+                byte[] image = file.getBytes();
+                newProduct.setImage(image); 
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+            productService.createProduct(newProduct);
+
+            return ResponseEntity.ok().body(newProduct);
         }
 
         @PutMapping  ("/modifier/{id}")
@@ -69,24 +93,23 @@ import java.util.Optional;
                 detailsBuilder.append("Type: ").append(produit.getType()).append("\n");
                 detailsBuilder.append("Category: ").append(produit.getCategory()).append("\n");
                 detailsBuilder.append("Description: ").append(produit.getDescription()).append("\n");
-                detailsBuilder.append("Image URL: ").append(produit.getImageUrl()).append("\n");
-                detailsBuilder.append("Details Descriptor: ").append(produit.getDetailsDecriptor()).append("\n");
+                detailsBuilder.append("Image URL: ").append(produit.getImage()).append("\n");
 
                 return ResponseEntity.ok(detailsBuilder.toString());
             }
             return ResponseEntity.notFound().build();
         }
 
-        @GetMapping("/{produitId}/image-url")
-        public String getImageUrl(@PathVariable Long idproduit) {
-            return productService.getImageUrl(idproduit);
-        }
+        // @GetMapping("/{produitId}/image-url")
+        // public String getImageUrl(@PathVariable Long idproduit) {
+        //     return productService.getImageUrl(idproduit);
+        // }
 
-        @PostMapping("/{produitId}/upload-image")
-        public void uploadImage(@PathVariable Long idproduit, @RequestParam("image") MultipartFile imageFile) throws IOException {
-            String resizedImageUrl = productService.resizeAndCompressImage(imageFile, 300, 300, 0.8f);
-            productService.saveImageUrl(idproduit, resizedImageUrl);
-        }
+        // @PostMapping("/{produitId}/upload-image")
+        // public void uploadImage(@PathVariable Long idproduit, @RequestParam("image") MultipartFile imageFile) throws IOException {
+        //     String resizedImageUrl = productService.resizeAndCompressImage(imageFile, 300, 300, 0.8f);
+        //     productService.saveImageUrl(idproduit, resizedImageUrl);
+        // }
     }
 
 

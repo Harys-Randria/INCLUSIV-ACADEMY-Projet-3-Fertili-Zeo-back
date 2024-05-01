@@ -1,6 +1,7 @@
 package com.fertilizeo.controller;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fertilizeo.config.jwt.JwtTokenValidationUtil;
 import com.fertilizeo.config.jwt.JwtUtils;
 import com.fertilizeo.controller.request.LoginRequest;
@@ -11,12 +12,11 @@ import com.fertilizeo.entity.Fournisseur;
 import com.fertilizeo.entity.Producteur;
 import com.fertilizeo.repository.CompteRepository;
 import com.fertilizeo.service.*;
-
-
 import com.fertilizeo.service.impl.ForgotPasswordRequest;
 import com.fertilizeo.service.impl.UserDetailsImpl;
 import jakarta.mail.MessagingException;
-import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,15 +26,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
 
 @RestController
+@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
+@Slf4j
 @RequestMapping("/compte")
 public class CompteController {
     @Autowired
@@ -152,7 +156,8 @@ public class CompteController {
                     userDetails.getCompte().getCin(),
                     userDetails.getCompte().getPhone(),
                     userDetails.getCompte().getAddress(),
-                    userDetails.getCompte().getNif_stat()
+                    userDetails.getCompte().getNif_stat(),
+                    userDetails.getCompte().getPhoto()
             ));
 
         }
@@ -203,7 +208,6 @@ public class CompteController {
 
 
 
-
     @DeleteMapping("/{accountId}")
     public ResponseEntity<String> deleteUserAccountById(@PathVariable Long accountId) {
         try {
@@ -233,7 +237,31 @@ public class CompteController {
         }
     }
 
+//
 
+    @PostMapping ("/updateCompte/{id}")
+    public ResponseEntity<?> updateCompte(
+            @PathVariable long id,
+            @RequestParam("compte") String compteJson,
+            @RequestParam("photo") MultipartFile photo) {
+
+        if (id <= 0 || compteJson == null || compteJson.isEmpty() || photo.isEmpty()) {
+            return ResponseEntity.badRequest().body("Invalid input parameters");
+        }
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Compte compte = objectMapper.readValue(compteJson, Compte.class);
+
+            compteService.updateById(id, photo, compte);
+
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing JSON data");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        }
+    }
 }
 
 

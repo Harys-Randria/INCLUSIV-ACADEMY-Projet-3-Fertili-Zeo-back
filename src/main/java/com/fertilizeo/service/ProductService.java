@@ -42,7 +42,7 @@ public class ProductService {
             produit.setType(productDetails.getType());
             produit.setCategory(productDetails.getCategory());
             produit.setDescription(productDetails.getDescription());
-            produit.setImageUrl(productDetails.getImageUrl());
+            produit.setImage(productDetails.getImage());
             return productRepository.save(produit);
         } else {
 
@@ -59,9 +59,9 @@ public class ProductService {
         }
     }
 
-    public String getImageUrl(Long idproduit) {
+    public byte[] getImage(Long idproduit) {
         Produit produit = productRepository.findById(idproduit).orElse(null);
-        return produit != null ? produit.getImageUrl() : null;
+        return produit != null ? produit.getImage() : null;
     }
 
     public String resizeAndCompressImage(MultipartFile imageFile, int width, int height, float quality) throws IOException, IOException {
@@ -77,16 +77,16 @@ public class ProductService {
         return "data:image/jpeg;base64," + base64Image; // Format d'URL pour les données Base64
     }
 
-    public void saveImageUrl(Long idproduit, String imageUrl) {
-        Optional<Produit> optionalProduct = productRepository.findById(idproduit);
-        if (optionalProduct.isPresent()) {
-            Produit existingProduct = optionalProduct.get();
-            existingProduct.setImageUrl(imageUrl);
-            productRepository.save(existingProduct);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit non trouvé avec l'ID : " + idproduit);
-        }
-    }
+    // public void saveImageUrl(Long idproduit, String imageUrl) {
+    //     Optional<Produit> optionalProduct = productRepository.findById(idproduit);
+    //     if (optionalProduct.isPresent()) {
+    //         Produit existingProduct = optionalProduct.get();
+    //         existingProduct.setImageUrl(imageUrl);
+    //         productRepository.save(existingProduct);
+    //     } else {
+    //         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit non trouvé avec l'ID : " + idproduit);
+    //     }
+    // }
 
     public Produit getProduitById(Long id) {
         return productRepository.findById(id).orElse(null);
