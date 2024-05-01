@@ -7,15 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 
     @RestController
+    @CrossOrigin(origins = "http://localhost:3000")
     @RequestMapping("/produit")
-    @CrossOrigin(origins = "/http://localhost:3000")
     public class ProductController {
 
         @Autowired
@@ -100,16 +99,18 @@ import java.util.Optional;
             return ResponseEntity.notFound().build();
         }
 
-        // @GetMapping("/{produitId}/image-url")
-        // public String getImageUrl(@PathVariable Long idproduit) {
-        //     return productService.getImageUrl(idproduit);
-        // }
 
-        // @PostMapping("/{produitId}/upload-image")
-        // public void uploadImage(@PathVariable Long idproduit, @RequestParam("image") MultipartFile imageFile) throws IOException {
-        //     String resizedImageUrl = productService.resizeAndCompressImage(imageFile, 300, 300, 0.8f);
-        //     productService.saveImageUrl(idproduit, resizedImageUrl);
-        // }
+//        @PostMapping("/{produitId}/upload-image")
+//        public void uploadImage(@PathVariable Long idproduit, @RequestParam("image") MultipartFile imageFile) throws IOException {
+//            String resizedImageUrl = productService.resizeAndCompressImage(imageFile, 300, 300, 0.8f);
+//            productService.saveImageUrl(idproduit, resizedImageUrl);
+//        }
+
+        @GetMapping("/by-compte/{idCompte}")
+        public List<Produit> getProductIdsByCompteId(@PathVariable Long idCompte) {
+            return productService.getProductIdsByAccountId(idCompte);
+        }
+
     }
 
 

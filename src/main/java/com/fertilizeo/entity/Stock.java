@@ -16,13 +16,15 @@ public class Stock {
 
     private Integer quantity;
 
-    @OneToOne
-    @JoinColumn(name = "produit_id")
-    private Produit produit;
-
 
     @ManyToOne
     @JoinColumn(name = "compte_id")
     private Compte compte;
 
+
+    @OneToOne
+    @JoinColumn(name = "produit_id", referencedColumnName = "idproduit")
+    private Produit produit;
+
 }
+

@@ -94,5 +94,10 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
+    public List<Produit> getProductIdsByAccountId(Long idCompte) {
+        return productRepository.findIdsByCompte_Idcompte(idCompte); // Utilisation de "idcompte" au lieu de "id"
+    }
+
+
 }
 

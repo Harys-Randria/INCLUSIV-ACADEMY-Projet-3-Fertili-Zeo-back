@@ -1,15 +1,17 @@
 package com.fertilizeo.service;
 
-
 import com.fertilizeo.entity.Compte;
 import com.fertilizeo.entity.Produit;
 import com.fertilizeo.entity.Stock;
 import com.fertilizeo.entity.StockExportDTO;
 import com.fertilizeo.repository.StockRepository;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,14 +22,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Data
+@NoArgsConstructor
 public class StockService {
 
-    private final StockRepository stockRepository;
-    private final ProductService productService;
+    @Autowired
+    private StockRepository stockRepository;
 
-    private  final CompteService compteService;
+    @Autowired
+    private ProductService productService;
 
-
+    @Autowired
+    private CompteService compteService;
 
     // Ajoutez ce constructeur pour injecter ProductService
     public StockService(StockRepository stockRepository, ProductService productService, CompteService compteService) {
@@ -35,7 +41,6 @@ public class StockService {
         this.productService = productService;
         this.compteService = compteService;
     }
-
 
 
     public int getQuantiteEnStock(Produit produit) {
@@ -131,16 +136,15 @@ public class StockService {
     }
 
     public Stock findStockByIdProduit(Long id) throws StockNotFoundException {
-           Produit produit = new Produit();
-           produit=productService.getProduitById(id);
-          Optional<Stock> stockOptional= stockRepository.findByProduit(produit);
-          if (stockOptional.isPresent()){
-              Stock stock= stockOptional.get();
-              return stock;
-          }
-           else {
-              throw new StockNotFoundException("Aucun stock trouvé pour le produit");
-          }
+        Produit produit = new Produit();
+        produit = productService.getProduitById(id);
+        Optional<Stock> stockOptional = stockRepository.findByProduit(produit);
+        if (stockOptional.isPresent()) {
+            Stock stock = stockOptional.get();
+            return stock;
+        } else {
+            throw new StockNotFoundException("Aucun stock trouvé pour le produit");
+        }
 
     }
 
@@ -201,7 +205,7 @@ public class StockService {
             String accountName = getAccountNameById(stock.getCompte().getIdcompte());
 
             // Créer un objet DTO d'export avec les informations nécessaires
-            StockExportDTO stockExportDTO = new StockExportDTO( productName, accountName, stock.getQuantity(),productId);
+            StockExportDTO stockExportDTO = new StockExportDTO(productName, accountName, stock.getQuantity(), productId);
 
             // Ajouter l'objet DTO à la liste
             stockExportDTOs.add(stockExportDTO);
@@ -218,17 +222,21 @@ public class StockService {
 
     public String getAccountNameById(Long id) {
         Optional<Compte> compteOptional = compteService.findById(id);
-        if(compteOptional.isPresent()){
-            Compte compte= compteOptional.get();
+        if (compteOptional.isPresent()) {
+            Compte compte = compteOptional.get();
             return compte.getName();
-        }
-       else {
+        } else {
             return "Non du produit non connu";
         }
     }
 
+
+    public StockService(StockRepository stockRepository) {
+        this.stockRepository = stockRepository;
+    }
+
+    public Long findByProduitIdproduit(Long produitId) {
+        return stockRepository.findQuantityByProduitId(produitId);
+    }
+
 }
-
-
-
-

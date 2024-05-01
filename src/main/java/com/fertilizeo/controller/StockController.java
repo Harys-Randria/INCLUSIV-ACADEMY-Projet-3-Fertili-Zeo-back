@@ -1,29 +1,34 @@
 package com.fertilizeo.controller;
 
+
 import com.fertilizeo.entity.Produit;
 import com.fertilizeo.service.ProductService;
 import com.fertilizeo.service.StockNotFoundException;
 import com.fertilizeo.service.StockService;
-import jakarta.persistence.Id;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/stock")
 public class StockController {
 
     @Autowired
-    private  StockService stockService;
+    private StockService stockService;
 
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    public StockController(StockService stockService) {
+        this.stockService = stockService;
+    }
 
     @GetMapping("/{produitId}")
     public ResponseEntity<Integer> getQuantiteEnStock(@PathVariable Long idproduit) {
@@ -32,6 +37,16 @@ public class StockController {
 
             int quantiteEnStock = stockService.getQuantiteEnStock(produit);
             return ResponseEntity.ok(quantiteEnStock);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/du_produit/{produitId}")
+    public ResponseEntity<Long> getStockQuantityByProduitId(@PathVariable Long produitId) {
+        Long stockQuantity = stockService.findByProduitIdproduit(produitId);
+        if (stockQuantity != null) {
+            return ResponseEntity.ok(stockQuantity);
+
         } else {
             return ResponseEntity.notFound().build();
         }
