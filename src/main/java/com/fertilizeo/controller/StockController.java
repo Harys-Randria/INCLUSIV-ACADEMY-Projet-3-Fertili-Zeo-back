@@ -2,6 +2,7 @@ package com.fertilizeo.controller;
 
 import com.fertilizeo.entity.Produit;
 import com.fertilizeo.service.ProductService;
+import com.fertilizeo.service.StockNotFoundException;
 import com.fertilizeo.service.StockService;
 import jakarta.persistence.Id;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,8 @@ public class StockController {
             return ResponseEntity.ok().body("Stock data imported successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error importing stock data");
+        } catch (StockNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
