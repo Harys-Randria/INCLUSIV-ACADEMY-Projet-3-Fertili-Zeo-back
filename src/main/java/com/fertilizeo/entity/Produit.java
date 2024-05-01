@@ -25,6 +25,7 @@ public class Produit {
     private String description;
     private String imageUrl;
     private String detailsDecriptor;
+    private Double quantity;
 
     @ManyToOne
     @JoinColumn(name = "id_compte")

@@ -58,8 +58,9 @@ import java.util.Optional;
 
         @GetMapping("/details/{id}")
         public ResponseEntity<String> getProduitDetailsDescriptor(@PathVariable("id") Long id) {
-            Produit produit = productService.getProduitById(id);
-            if (produit != null) {
+            Optional<Produit> optionalProduit = productService.getProductById(id);
+            if (optionalProduit.isPresent()) {
+                Produit produit = optionalProduit.get();
                 StringBuilder detailsBuilder = new StringBuilder();
                 detailsBuilder.append("ID: ").append(produit.getIdproduit()).append("\n");
                 detailsBuilder.append("Name: ").append(produit.getName()).append("\n");
@@ -75,6 +76,8 @@ import java.util.Optional;
             }
             return ResponseEntity.notFound().build();
         }
+
+
 
         @GetMapping("/{produitId}/image-url")
         public String getImageUrl(@PathVariable Long idproduit) {

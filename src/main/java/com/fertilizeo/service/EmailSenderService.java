@@ -77,6 +77,16 @@ public class EmailSenderService {
 
             javaMailSender.send(message);
         }
+    public void sendEmailToSupplier(String to, String body) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(to);
+        helper.setSubject("Notification de Stock Bas");
+        helper.setText(body);
+
+        javaMailSender.send(message);
+    }
     }
 
 

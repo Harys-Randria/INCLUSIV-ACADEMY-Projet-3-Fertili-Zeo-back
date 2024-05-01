@@ -2,9 +2,11 @@ package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Produit;
 import com.fertilizeo.repository.ProductRepository;
+import jakarta.mail.MessagingException;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,7 +19,12 @@ import java.util.Optional;
 @Service
 public class ProductService {
     @Autowired
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    // Seuil de stock bas
+    private static final int STOCK_THRESHOLD = 10;
 
     public List<Produit> getAllProducts() {
         return productRepository.findAll();
@@ -31,7 +38,6 @@ public class ProductService {
         return productRepository.save(produit);
     }
 
-
     public Produit updateProduct(Long productId, Produit productDetails) {
         Optional<Produit> optionalProduct = productRepository.findById(productId);
         if (optionalProduct.isPresent()) {
@@ -43,9 +49,9 @@ public class ProductService {
             produit.setCategory(productDetails.getCategory());
             produit.setDescription(productDetails.getDescription());
             produit.setImageUrl(productDetails.getImageUrl());
+            produit.setQuantity(productDetails.getQuantity());
             return productRepository.save(produit);
         } else {
-
             return null;
         }
     }
@@ -54,8 +60,6 @@ public class ProductService {
         Optional<Produit> optionalProduct = productRepository.findById(productId);
         if (optionalProduct.isPresent()) {
             productRepository.delete(optionalProduct.get());
-        } else {
-
         }
     }
 
@@ -64,17 +68,15 @@ public class ProductService {
         return produit != null ? produit.getImageUrl() : null;
     }
 
-    public String resizeAndCompressImage(MultipartFile imageFile, int width, int height, float quality) throws IOException, IOException {
-        // Redimensionnement et compression de l'image
+    public String resizeAndCompressImage(MultipartFile imageFile, int width, int height, float quality) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Thumbnails.of(imageFile.getInputStream())
                 .size(width, height)
                 .outputQuality(quality)
                 .toOutputStream(outputStream);
         byte[] imageBytes = outputStream.toByteArray();
-        // Convertir les données binaires de l'image en Base64
         String base64Image = java.util.Base64.getEncoder().encodeToString(imageBytes);
-        return "data:image/jpeg;base64," + base64Image; // Format d'URL pour les données Base64
+        return "data:image/jpeg;base64," + base64Image;
     }
 
     public void saveImageUrl(Long idproduit, String imageUrl) {
@@ -88,9 +90,19 @@ public class ProductService {
         }
     }
 
-    public Produit getProduitById(Long id) {
-        return productRepository.findById(id).orElse(null);
+    // Méthode pour vérifier le stock bas et envoyer des notifications par e-mail au fournisseur
+    @Scheduled(fixedRate = 24 * 60 * 60 * 1000) // Vérifiez toutes les 24 heures
+    public void checkLowStockAndNotifySupplier() {
+        List<Produit> produits = productRepository.findAll();
+        for (Produit produit : produits) {
+            if (produit.getQuantity() < STOCK_THRESHOLD) {
+                String message = "Le stock du produit " + produit.getName() + " est bas. Quantité en stock : " + produit.getQuantity();
+                try {
+                    emailSenderService.sendEmailToSupplier(produit.getCompte().getEmail(), message);
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
-
 }
-
