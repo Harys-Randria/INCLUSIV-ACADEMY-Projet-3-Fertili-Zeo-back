@@ -27,13 +27,8 @@ public class Produit {
     private Integer seuilreapprovisionnement;
 
     @ManyToOne
-    @JoinColumn(name = "id_fournisseur")
-    private Fournisseur fournisseur;
-
-    @ManyToOne
-    @JoinColumn(name = "id_producteur")
-    private Producteur producteur;
-
+    @JoinColumn(name = "id_compte")
+    private Compte compte;
     @OneToOne
     @JoinColumn(name="id_stock")
     private Stock stock;

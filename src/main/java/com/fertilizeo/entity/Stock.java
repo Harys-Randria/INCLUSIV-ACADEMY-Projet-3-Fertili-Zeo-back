@@ -22,10 +22,7 @@ public class Stock {
 
 
     @ManyToOne
-    @JoinColumn(name = "fournisseur_id")
-    private Fournisseur fournisseur;
+    @JoinColumn(name = "compte_id")
+    private Compte compte;
 
-    @ManyToOne
-    @JoinColumn(name = "producteur_id")
-    private Producteur producteur;
 }
