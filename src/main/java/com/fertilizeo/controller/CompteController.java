@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -64,15 +65,17 @@ public class CompteController {
     EmailSenderService emailSenderService;
 
 
+
     @PostMapping("/add/users")
-    public ResponseEntity<?> addCompte (@RequestBody Compte compte){
+    public ResponseEntity<?> addCompte(@RequestBody Compte compte) {
+
 
         //verification si l'email est deja utiliser par un autre compte existant
-        if(compteService.findEmail(compte.getEmail())) {
+        if (compteService.findEmail(compte.getEmail())) {
             return ResponseEntity.badRequest().body("Erreur : Un compte est déjà inscrit avec l'email fourni.");
         }
-        try{
-             if (compte.getType() == 2) {
+        try {
+            if (compte.getType() == 2) {
                 Fournisseur fournisseur = new Fournisseur();
                 fournisseur.setName(compte.getName());
                 fournisseur.setPhone(compte.getPhone());
@@ -82,6 +85,7 @@ public class CompteController {
                 fournisseur.setAddress(compte.getAddress());
                 fournisseur.setNif_stat(compte.getNif_stat());
                 fournisseur.setEnable(false);
+
                 fournisseurService.addFournisseur(fournisseur);
                 emailSenderService.sendEmail(fournisseur.getEmail(), fournisseur.getName());
             } else if (compte.getType() == 4) {
@@ -96,25 +100,26 @@ public class CompteController {
                 producteur.setEnable(false);
                 producteurService.addProducteur(producteur);
                 emailSenderService.sendEmail(producteur.getEmail(), producteur.getName());
-            }else{
-                 Client client = new Client();
-                 client.setName(compte.getName());
-                 client.setPhone(compte.getPhone());
-                 client.setCin(compte.getCin());
-                 client.setEmail(compte.getEmail());
-                 if (compte.getPassword()==null){
-                     compte.setPassword(null);
-                 } else{
-                 client.setPassword(encoder.encode(compte.getPassword()));}
-                 client.setAddress(compte.getAddress());
-                 client.setNif_stat(compte.getNif_stat());
-                 client.setEnable(false);
-                 clientService.addClient(client);
-                 emailSenderService.sendEmail(client.getEmail(), client.getName());
-             }
+            } else {
+                Client client = new Client();
+                client.setName(compte.getName());
+                client.setPhone(compte.getPhone());
+                client.setCin(compte.getCin());
+                client.setEmail(compte.getEmail());
+                if (compte.getPassword() == null) {
+                    compte.setPassword(null);
+                } else {
+                    client.setPassword(encoder.encode(compte.getPassword()));
+                }
+                client.setAddress(compte.getAddress());
+                client.setNif_stat(compte.getNif_stat());
+                client.setEnable(false);
+                clientService.addClient(client);
+                emailSenderService.sendEmail(client.getEmail(), client.getName());
+            }
 
-        return ResponseEntity.ok("Inscription réussie. Veuillez vérifier votre email pour activer votre compte.");
-    }catch (Exception e){
+            return ResponseEntity.ok("Inscription réussie. Veuillez vérifier votre email pour activer votre compte.");
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erreur lors de l'inscription : " + e.getMessage());
         }
     }
@@ -122,19 +127,20 @@ public class CompteController {
 
     //Authentifaction
     @PostMapping("/signin")
-    public ResponseEntity<?> authentication(@RequestBody LoginRequest loginRequest) {
+
+    public ResponseEntity<?> authentication(@Valid @RequestBody LoginRequest loginRequest) {
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-            // Récupérer les informations de l'utilisateur authentifié
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
 
-            // Générer le token JWT
-            String jwt = jwtUtils.generateJwtToken(authentication);
+
 
             return ResponseEntity.ok(new JwtResponse(jwt,
                     userDetails.getCompte().getIdcompte(),
@@ -145,7 +151,12 @@ public class CompteController {
                     userDetails.getCompte().getAddress(),
                     userDetails.getCompte().getNif_stat()
             ));
-        } catch (Exception exception) {
+
+        }
+
+        //verification si le compte est active
+        catch (Exception exception) {
+
             return ResponseEntity.badRequest().body(exception.getMessage());
         }
     }
@@ -231,10 +242,10 @@ public class CompteController {
                 "</html>";
 
         emailSenderService.sendHtmlEmail(email,
-                "REINITILIASATION DE VOTRE MOTS DE PASSE",
+                "REINITILIASATION DE MOT DE PASSE",
                 htmlBody);
 
-        return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe a été envoyé.");
+        return ResponseEntity.ok("Un e-mail de réinitialisation de mot de passe vous a été envoyé.");
     }
 
     @DeleteMapping("/{accountId}")
@@ -250,14 +261,14 @@ public class CompteController {
     @PutMapping("/{accountId}/soft-delete")
     public ResponseEntity<String> softDeleteUserAccountById(@PathVariable Long accountId) {
         try {
-            // Rechercher le compte par ID
+
             Compte compte = compteRepository.findById(accountId)
                     .orElseThrow(() -> new RuntimeException("Compte non trouvé avec ID : " + accountId));
 
-            // Mettre à jour isDeleted à true
+
             compte.set_delete(true);
 
-            // Sauvegarder les modifications
+
             compteRepository.save(compte);
 
             return new ResponseEntity<>("Compte utilisateur marqué comme supprimé avec succès", HttpStatus.OK);
@@ -266,4 +277,8 @@ public class CompteController {
         }
     }
 
+
 }
+
+
+

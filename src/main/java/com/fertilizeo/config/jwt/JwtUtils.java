@@ -53,4 +53,23 @@ public class JwtUtils {
 
         return false;
     }
+
+
+
+        public  String generateResetToken(Long accountId) {
+            return Jwts.builder()
+                    .setSubject(String.valueOf(accountId))
+                    .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                    .signWith(SignatureAlgorithm.HS512,jwtSecret)
+                    .compact();
+        }
+
+
+    public Long validateToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+        return Long.parseLong(claims.getSubject());
+    }
 }

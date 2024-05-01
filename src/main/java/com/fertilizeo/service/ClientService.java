@@ -2,6 +2,7 @@ package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Client;
 import com.fertilizeo.entity.Compte;
+import com.fertilizeo.entity.Fournisseur;
 import com.fertilizeo.repository.ClientRepository;
 import com.fertilizeo.repository.CompteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,22 @@ public class ClientService {
         }
         else {
             throw  new EntityNotFoundException("Client non existant, merci de bien vérifier");
+        }
+
+    }
+
+    public Client updateClientPassword(Client client, long id, String password){
+
+        Optional<Compte> clientOptional = compteRepository.findById(id);
+        if (clientOptional.isPresent()) {
+            Compte clientModify = clientOptional.get();
+            clientModify.setPassword(password);
+            compteRepository.save(clientModify);
+            return ((Client) clientModify);
+
+        } else {
+            // Gérer le cas où l'entité n'est pas trouvée, par exemple, lancer une exception
+            throw new EntityNotFoundException("Entité non trouvée avec l'ID: " + id);
         }
 
     }

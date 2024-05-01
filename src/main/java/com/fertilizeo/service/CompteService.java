@@ -25,7 +25,16 @@ public class CompteService {
         return compte;
     }
 
+    public Optional<Compte> findById (long id){
+        Optional<Compte> compte= compteRepository.findById(id);
+        return compte;
+    }
 
 
 
-}
+
+    }
+
+
+
+

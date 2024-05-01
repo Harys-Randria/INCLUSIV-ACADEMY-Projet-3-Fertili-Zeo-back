@@ -25,8 +25,27 @@ public class Produit {
     private String description;
     private String imageUrl;
     private String detailsDecriptor;
+    private Integer quantity;
+    private Integer seuilreapprovisionnement;
+
+    @ManyToOne
+    @JoinColumn(name = "id_fournisseur")
+    private Fournisseur fournisseur;
+
+    @ManyToOne
+    @JoinColumn(name = "id_producteur")
+    private Producteur producteur;
+
+    @OneToOne
+    @JoinColumn(name="id_stock")
+    private Stock stock;
+
+
 
     @ManyToOne
     @JoinColumn(name = "id_compte")
     private Compte compte;
+
+
+
 }
