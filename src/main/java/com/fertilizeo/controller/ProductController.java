@@ -1,6 +1,8 @@
 package com.fertilizeo.controller;
 
+import com.fertilizeo.entity.Compte;
 import com.fertilizeo.entity.Produit;
+import com.fertilizeo.service.CompteService;
 import com.fertilizeo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,9 @@ import java.util.Optional;
 
         @Autowired
         private ProductService productService;
+
+        @Autowired
+        private CompteService compteService;
 
         @GetMapping("/allproduct")
         public ResponseEntity<List<Produit>> getAllProducts() {
@@ -45,24 +50,32 @@ import java.util.Optional;
                                                      @RequestParam("type") String type,
                                                      @RequestParam("category") String category,
                                                      @RequestParam("description") String descProduct,
-                                                     @RequestParam("expirationDate")LocalDate dateExpiration) {
-            Produit newProduct = new Produit();
-            newProduct.setName(prodName);
-            newProduct.setPrice(prodPrice);
-            newProduct.setType(type);
-            newProduct.setCategory(category);
-            newProduct.setDescription(descProduct);
-            newProduct.setExpirationDate(dateExpiration);
-            try{
-                byte[] image = file.getBytes();
-                newProduct.setImage(image); 
-            } catch (Exception e){
-                e.printStackTrace();
+                                                     @RequestParam("expirationDate")LocalDate dateExpiration,
+                                                     @RequestParam("userId") Long id) {
+
+            Optional<Compte> optionalCompte = compteService.findById(id);
+
+            if (optionalCompte.isPresent()) {
+                Compte compte = optionalCompte.get();
+                Produit newProduct = new Produit();
+                newProduct.setName(prodName);
+                newProduct.setPrice(prodPrice);
+                newProduct.setType(type);
+                newProduct.setCategory(category);
+                newProduct.setDescription(descProduct);
+                newProduct.setExpirationDate(dateExpiration);
+                newProduct.setCompte(compte);
+                try{
+                    byte[] image = file.getBytes();
+                    newProduct.setImage(image);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+                productService.createProduct(newProduct);
+                return ResponseEntity.ok().body(newProduct);
+            }else {
+                return ResponseEntity.notFound().build();
             }
-
-            productService.createProduct(newProduct);
-
-            return ResponseEntity.ok().body(newProduct);
         }
 
         @PutMapping  ("/modifier/{id}")
