@@ -1,7 +1,9 @@
 package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Produit;
+import com.fertilizeo.entity.Stock;
 import com.fertilizeo.repository.ProductRepository;
+import com.fertilizeo.repository.StockRepository;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class ProductService {
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
+    StockRepository stockRepository;
 
 
 
@@ -93,6 +98,19 @@ public class ProductService {
     public Produit getProduitById(Long id) {
         return productRepository.findById(id).orElse(null);
     }
+
+
+
+    public List<Produit> getAllProductsWithStock() {
+        List<Produit> products = productRepository.findAllProductsWithStock();
+        // Récupérer la quantité de stock pour chaque produit
+        for (Produit product : products) {
+            Optional<Stock> optionalStock = stockRepository.findByProduitIdproduit(product.getIdproduit());
+            optionalStock.ifPresent(stock -> product.setStock(stock));
+        }
+        return products;
+    }
+
 
 }
 

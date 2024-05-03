@@ -24,6 +24,11 @@ public class StockController {
 
     @Autowired
     private ProductService productService;
+    @GetMapping("/quantity/{productId}")
+    public ResponseEntity<Integer> getStockQuantityByProductId(@PathVariable Long productId) {
+        int stockQuantity = stockService.getStockQuantityByProductId(productId);
+        return ResponseEntity.ok(stockQuantity);
+    }
 
     @GetMapping("/{produitId}")
     public ResponseEntity<Integer> getQuantiteEnStock(@PathVariable Long idproduit) {

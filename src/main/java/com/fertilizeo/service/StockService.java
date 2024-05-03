@@ -148,8 +148,9 @@ public class StockService {
         return stockRepository.findByCompteIdcompte(compteId);
     }
 
-    public Optional<Stock> getStockByProduitId(Long produitId) {
-        return stockRepository.findByProduitIdproduit(produitId);
+    public int getStockQuantityByProductId(Long productId) {
+        Optional<Stock> stockOptional = stockRepository.findByProduitIdproduit(productId);
+        return stockOptional.map(Stock::getQuantity).orElse(0);
     }
 
     public void saveOrUpdateStock(Stock stock) {

@@ -1,5 +1,6 @@
 package com.fertilizeo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class Stock {
     private Integer quantity;
 
     @OneToOne
+    @JsonBackReference
     @JoinColumn(name = "produit_id")
     private Produit produit;
 
