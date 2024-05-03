@@ -35,10 +35,5 @@ public class Produit {
 
 
 
-    @ManyToOne
-    @JoinColumn(name = "id_compte")
-    private Compte compte;
-
-
 
 }

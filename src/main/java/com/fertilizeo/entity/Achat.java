@@ -25,10 +25,9 @@ public class Achat {
     @JoinColumn(name = "compte_id", nullable = false)
     private Compte compte;
 
-    @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL)
-    private List<Commande> lignesCommande;
+    @OneToMany(mappedBy = "achat", cascade = CascadeType.ALL)
+    private List<Commande> commandes;
 
     @Column(nullable = false)
     private double montantTotal;
-
 }

@@ -20,11 +20,19 @@ public class Commande {
     private Long id;
 
     @ManyToOne
-    private Compte compte;
+    @JoinColumn(name = "achat_id", nullable = false)
+    private Achat achat;
 
     @ManyToMany
+    @JoinTable(
+            name = "commande_produit",
+            joinColumns = @JoinColumn(name = "commande_id"),
+            inverseJoinColumns = @JoinColumn(name = "produit_id"))
     private List<Produit> produits = new ArrayList<>();
 
+    @Column(nullable = false)
     private LocalDateTime dateCommande;
 
+    // Getters, setters et constructeurs
 }
+
