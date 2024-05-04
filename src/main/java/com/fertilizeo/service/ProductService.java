@@ -2,9 +2,11 @@ package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Produit;
 import com.fertilizeo.repository.ProductRepository;
+import jakarta.mail.MessagingException;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,7 +19,12 @@ import java.util.Optional;
 @Service
 public class ProductService {
     @Autowired
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    // Seuil de stock bas
+    private static final int STOCK_THRESHOLD = 10;
 
     public List<Produit> getAllProducts() {
         return productRepository.findAll();
@@ -90,6 +97,23 @@ public class ProductService {
 
     public Produit getProduitById(Long id) {
         return productRepository.findById(id).orElse(null);
+    }
+
+
+    // Méthode pour vérifier le stock bas et envoyer des notifications par e-mail au fournisseur
+    @Scheduled(fixedRate = 24 * 60 * 60 * 1000) // Vérifiez toutes les 24 heures
+    public void checkLowStockAndNotifySupplier() {
+        List<Produit> produits = productRepository.findAll();
+        for (Produit produit : produits) {
+            if (produit.getQuantity() < STOCK_THRESHOLD) {
+                String message = "Le stock du produit " + produit.getName() + " est bas. Quantité en stock : " + produit.getQuantity();
+                try {
+                    emailSenderService.sendEmailToSupplier(produit.getCompte().getEmail(), message);
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }

@@ -45,7 +45,7 @@ import java.util.Optional;
                                                      @RequestParam("type") String type,
                                                      @RequestParam("category") String category,
                                                      @RequestParam("description") String descProduct,
-                                                     @RequestParam("expirationDate")LocalDate dateExpiration) {
+                                                     @RequestParam("expirationDate") LocalDate dateExpiration) {
             Produit newProduct = new Produit();
             newProduct.setName(prodName);
             newProduct.setPrice(prodPrice);
@@ -55,7 +55,7 @@ import java.util.Optional;
             newProduct.setExpirationDate(dateExpiration);
             try{
                 byte[] image = file.getBytes();
-                newProduct.setImage(image); 
+                newProduct.setImage(image);
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -65,7 +65,7 @@ import java.util.Optional;
             return ResponseEntity.ok().body(newProduct);
         }
 
-        @PutMapping  ("/modifier/{id}")
+        @PutMapping("/modifier/{id}")
         public ResponseEntity<Produit> updateProduct(@PathVariable Long id, @RequestBody Produit produit) {
             Produit updatedProduct = productService.updateProduct(id, produit);
             if (updatedProduct != null) {
