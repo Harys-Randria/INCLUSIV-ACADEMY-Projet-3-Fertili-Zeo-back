@@ -71,6 +71,7 @@ import java.util.Optional;
                 detailsBuilder.append("Description: ").append(produit.getDescription()).append("\n");
                 detailsBuilder.append("Image URL: ").append(produit.getImageUrl()).append("\n");
                 detailsBuilder.append("Details Descriptor: ").append(produit.getDetailsDecriptor()).append("\n");
+                detailsBuilder.append("Quantity: ").append(produit.getQuantity()).append("\n");
 
                 return ResponseEntity.ok(detailsBuilder.toString());
             }
@@ -83,6 +84,13 @@ import java.util.Optional;
         public String getImageUrl(@PathVariable Long idproduit) {
             return productService.getImageUrl(idproduit);
         }
+        @PostMapping("/acheter/{productId}/{quantityPurchased}")
+        public ResponseEntity<Void> processPurchase(@PathVariable Long productId, @PathVariable Double quantityPurchased) {
+            productService.processPurchase(productId, quantityPurchased);
+            return ResponseEntity.ok().build();
+        }
+
+
 
         @PostMapping("/{produitId}/upload-image")
         public void uploadImage(@PathVariable Long idproduit, @RequestParam("image") MultipartFile imageFile) throws IOException {

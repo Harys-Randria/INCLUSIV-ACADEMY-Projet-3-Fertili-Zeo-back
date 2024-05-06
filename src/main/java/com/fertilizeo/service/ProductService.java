@@ -90,6 +90,28 @@ public class ProductService {
         }
     }
 
+
+
+    public void processPurchase(Long productId, Double quantityPurchased) {
+        Optional<Produit> optionalProduct = productRepository.findById(productId);
+        if (optionalProduct.isPresent()) {
+            Produit product = optionalProduct.get();
+            Double updatedQuantity = product.getQuantity() - quantityPurchased;
+            if (updatedQuantity >= 0) {
+                product.setQuantity(updatedQuantity);
+                productRepository.save(product);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantité insuffisante en stock pour l'achat.");
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit non trouvé avec l'ID : " + productId);
+        }
+    }
+
+
+
+
+
     // Méthode pour vérifier le stock bas et envoyer des notifications par e-mail au fournisseur
     @Scheduled(fixedRate = 24 * 60 * 60 * 1000) // Vérifiez toutes les 24 heures
     public void checkLowStockAndNotifySupplier() {
