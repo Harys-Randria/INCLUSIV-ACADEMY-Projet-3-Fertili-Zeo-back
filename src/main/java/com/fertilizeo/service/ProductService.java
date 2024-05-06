@@ -26,6 +26,8 @@ public class ProductService {
     // Seuil de stock bas
     private static final int STOCK_THRESHOLD = 10;
 
+
+
     public List<Produit> getAllProducts() {
         return productRepository.findAll();
     }

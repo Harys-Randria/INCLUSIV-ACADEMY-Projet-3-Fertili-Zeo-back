@@ -1,6 +1,5 @@
 package com.fertilizeo.service;
 
-import com.fertilizeo.entity.Client;
 import com.fertilizeo.entity.Compte;
 import com.fertilizeo.repository.CompteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,7 @@ public class CompteService {
         return compte;
     }
 
+
     public Compte updateById (long id, MultipartFile photo,Compte compte) throws IOException {
         Optional<Compte> compteOptional = compteRepository.findById(id);
         if (compteOptional.isPresent()) {
@@ -47,6 +47,7 @@ public class CompteService {
             return compteModify;
         }
         return null;
+
     }
 
 

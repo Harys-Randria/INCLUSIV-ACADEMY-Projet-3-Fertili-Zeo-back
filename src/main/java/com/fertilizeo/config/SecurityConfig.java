@@ -45,8 +45,10 @@ public class SecurityConfig implements WebMvcConfigurer {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers("/compte/add/users","/compte/register", "/compte/**","/fournisseurs/**", "/client/**", "/produit/**", "/produit/ajouter").permitAll().requestMatchers(
+
+                                .requestMatchers("/compte/add/users","/compte/register", "/compte/**","/fournisseurs/**", "/client/**", "/produit/**", "/produit/ajouter","/stock/**").permitAll().requestMatchers(
                                         PathRequest.toStaticResources().atCommonLocations()).permitAll().anyRequest().authenticated()
+
                 );
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();

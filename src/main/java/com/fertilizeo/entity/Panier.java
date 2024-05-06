@@ -5,24 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Stock {
+public class Panier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idstock;
-
-    private Integer quantity;
-
-    @OneToOne
-    @JoinColumn(name = "produit_id")
-    private Produit produit;
-
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "compte_id")
     private Compte compte;
+
+    @ManyToMany
+    private List<Produit> produits = new ArrayList<>();
 
 }
