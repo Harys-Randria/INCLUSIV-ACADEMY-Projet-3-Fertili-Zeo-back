@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,9 +23,6 @@ public class Achat {
     @ManyToOne
     @JoinColumn(name = "compte_id", nullable = false)
     private Compte compte;
-
-    @OneToMany(mappedBy = "achat", cascade = CascadeType.ALL)
-    private List<Commande> commandes;
 
     @Column(nullable = false)
     private double montantTotal;

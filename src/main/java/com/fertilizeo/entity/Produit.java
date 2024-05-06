@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -34,4 +35,7 @@ public class Produit {
     @JsonBackReference
     @OneToOne(mappedBy = "produit")
     private Stock stock;
+
+    @OneToMany(mappedBy = "produit")
+    private List<Panier> Panier;
 }

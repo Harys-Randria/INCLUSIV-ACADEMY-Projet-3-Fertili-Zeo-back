@@ -1,43 +1,38 @@
 package com.fertilizeo.controller;
 
+import com.fertilizeo.entity.Commande;
 import com.fertilizeo.entity.Panier;
-import com.fertilizeo.service.PanierService;
+import com.fertilizeo.repository.CommandeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 
-@Controller
+@RestController
+@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/panier")
 public class PanierController {
 
     @Autowired
-    private PanierService panierService;
+    private CommandeRepository commandeRepository;
 
-    @PostMapping
-    public Panier createPanier(@RequestBody Panier panier) {
-        return panierService.save(panier);
+    @PostMapping("/lignepanier")
+    public void savePanier(@RequestBody Panier[] paniers) {
+        try {
+            // Créer une nouvelle commande
+            Commande nouvelleCommande = new Commande();
+            nouvelleCommande.setDateCommande(LocalDateTime.now());
+
+            // Associer la liste des paniers à la commande
+            nouvelleCommande.setPaniers(Arrays.asList(paniers));
+
+            // Enregistrer la nouvelle commande dans la base de données
+            commandeRepository.save(nouvelleCommande);
+
+            System.out.println("Nouvelle commande créée : " + nouvelleCommande);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
-    @GetMapping
-    public List<Panier> getAllPaniers() {
-        return panierService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Panier getPanierById(@PathVariable Long id) {
-        return panierService.findById(id);
-    }
-
-    @PutMapping("/{id}")
-    public Panier updatePanier(@PathVariable Long id, @RequestBody Panier panier) {
-        panier.setId(id);
-        return panierService.save(panier);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deletePanier(@PathVariable Long id) {
-        panierService.deleteById(id);
-    }
-
 }

@@ -1,12 +1,13 @@
 package com.fertilizeo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -19,20 +20,24 @@ public class Commande {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "achat_id", nullable = false)
-    private Achat achat;
-
-    @ManyToMany
-    @JoinTable(
-            name = "commande_produit",
-            joinColumns = @JoinColumn(name = "commande_id"),
-            inverseJoinColumns = @JoinColumn(name = "produit_id"))
-    private List<Produit> produits = new ArrayList<>();
-
     @Column(nullable = false)
     private LocalDateTime dateCommande;
 
-    // Getters, setters et constructeurs
-}
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "commande")
+    private List<Panier> paniers;
 
+    public Commande(List<Panier> paniers) {
+        this.paniers = paniers;
+
+        for (Panier panier : paniers) {
+            panier.setCommande(this);
+        }
+    }
+
+    @JsonProperty("compteId") // Spécifiez le nom de la propriété sérialisée
+    @ManyToOne
+    private Compte compte;
+
+
+}
