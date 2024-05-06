@@ -16,8 +16,9 @@ public class JwtResponse {
     private String phone;
     private String address;
     private String nif_stat;
+    private byte[] photo;
 
-    public JwtResponse(String accessToken, Long id, String name, String email, String cin, String phone, String address, String nif_stat) {
+    public JwtResponse(String accessToken, Long id, String name, String email, String cin, String phone, String address, String nif_stat,byte[] photo) {
         this.token = accessToken;
         this.id = id;
         this.name = name;
@@ -26,5 +27,6 @@ public class JwtResponse {
         this.phone = phone;
         this.address = address;
         this.nif_stat = nif_stat;
+        this.photo = photo;
     }
 }

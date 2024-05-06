@@ -48,8 +48,8 @@ public class ProductService {
             produit.setType(productDetails.getType());
             produit.setCategory(productDetails.getCategory());
             produit.setDescription(productDetails.getDescription());
-            produit.setImageUrl(productDetails.getImageUrl());
-            produit.setQuantity(productDetails.getQuantity());
+            produit.setImage(productDetails.getImage()); // Utiliser setImageUrl si nécessaire
+            produit.setQuantity(productDetails.getQuantity()); // Mettre à jour la quantité
             return productRepository.save(produit);
         } else {
             return null;
@@ -63,12 +63,13 @@ public class ProductService {
         }
     }
 
-    public String getImageUrl(Long idproduit) {
+    public byte[] getImage(Long idproduit) {
         Produit produit = productRepository.findById(idproduit).orElse(null);
-        return produit != null ? produit.getImageUrl() : null;
+        return produit != null ? produit.getImage() : null;
     }
 
-    public String resizeAndCompressImage(MultipartFile imageFile, int width, int height, float quality) throws IOException {
+    public String resizeAndCompressImage(MultipartFile imageFile, int width, int height, float quality) throws IOException, IOException {
+        // Redimensionnement et compression de l'image
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Thumbnails.of(imageFile.getInputStream())
                 .size(width, height)
@@ -76,18 +77,22 @@ public class ProductService {
                 .toOutputStream(outputStream);
         byte[] imageBytes = outputStream.toByteArray();
         String base64Image = java.util.Base64.getEncoder().encodeToString(imageBytes);
-        return "data:image/jpeg;base64," + base64Image;
+        return "data:image/jpeg;base64," + base64Image; // Format d'URL pour les données Base64
     }
 
-    public void saveImageUrl(Long idproduit, String imageUrl) {
-        Optional<Produit> optionalProduct = productRepository.findById(idproduit);
-        if (optionalProduct.isPresent()) {
-            Produit existingProduct = optionalProduct.get();
-            existingProduct.setImageUrl(imageUrl);
-            productRepository.save(existingProduct);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit non trouvé avec l'ID : " + idproduit);
-        }
+    // public void saveImageUrl(Long idproduit, String imageUrl) {
+    //     Optional<Produit> optionalProduct = productRepository.findById(idproduit);
+    //     if (optionalProduct.isPresent()) {
+    //         Produit existingProduct = optionalProduct.get();
+    //         existingProduct.setImageUrl(imageUrl);
+    //         productRepository.save(existingProduct);
+    //     } else {
+    //         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit non trouvé avec l'ID : " + idproduit);
+    //     }
+    // }
+
+    public Produit getProduitById(Long id) {
+        return productRepository.findById(id).orElse(null);
     }
 
 
@@ -98,7 +103,7 @@ public class ProductService {
             Produit product = optionalProduct.get();
             Double updatedQuantity = product.getQuantity() - quantityPurchased;
             if (updatedQuantity >= 0) {
-                product.setQuantity(updatedQuantity);
+                product.setQuantity(updatedQuantity.intValue());
                 productRepository.save(product);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantité insuffisante en stock pour l'achat.");

@@ -42,4 +42,20 @@ public class FournisseurService {
 
     }
 
+    public Fournisseur updateFournisseurPassword(Fournisseur fournisseur, long id, String password){
+
+        Optional<Compte> fournisseurOptional = compteRepository.findById(id);
+        if (fournisseurOptional.isPresent()) {
+            Compte fournisseurModify = fournisseurOptional.get();
+            fournisseurModify.setPassword(password);
+            compteRepository.save(fournisseurModify);
+            return ((Fournisseur) fournisseurModify);
+
+        } else {
+            // Gérer le cas où l'entité n'est pas trouvée, par exemple, lancer une exception
+            throw new EntityNotFoundException("Entité non trouvée avec l'ID: " + id);
+        }
+
+    }
+
 }
