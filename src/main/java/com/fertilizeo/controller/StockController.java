@@ -7,7 +7,9 @@ import com.fertilizeo.service.ProductService;
 import com.fertilizeo.service.StockNotFoundException;
 import com.fertilizeo.service.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -175,14 +177,21 @@ public class StockController {
     public ResponseEntity<byte[]> exportStocksToExcel(@PathVariable Long accountId) {
         try {
             // Appeler la méthode du service pour exporter les stocks liés au compte vers Excel
-            stockService.exportStocksByCompteToExcel(accountId);
+            byte[] excelData = stockService.exportStocksByCompteToExcel(accountId);
 
-            // Retourner une réponse OK si l'export est réussi
-            return ResponseEntity.ok().body("Export successful".getBytes());
+            // Définir les en-têtes de la réponse pour indiquer le type de contenu et le nom de fichier
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", "stock_history.xlsx"); // Nom du fichier Excel
+
+            // Retourner une réponse OK avec les données du fichier Excel en tant que corps de la réponse
+            return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
         } catch (IOException e) {
             // Retourner une réponse avec erreur 500 en cas d'échec de l'export
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error exporting stocks data".getBytes());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error exporting stocks data".getBytes());
         }
     }
+
 
 }

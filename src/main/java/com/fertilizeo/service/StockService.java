@@ -3,8 +3,10 @@ package com.fertilizeo.service;
 import com.fertilizeo.entity.*;
 import com.fertilizeo.repository.StockHistoryRepository;
 import com.fertilizeo.repository.StockRepository;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -179,7 +182,9 @@ public class StockService {
         stockRepository.save(stock);
     }
 
-    public void exportStocksToExcel(List<StockExportDTO> stockExportDTOs) throws IOException {
+
+    public byte[] exportStocksToExcel(List<StockExportDTO> stockExportDTOs) throws IOException {
+
         // Création d'un nouveau classeur Excel
         Workbook workbook = new XSSFWorkbook();
         // Création d'une nouvelle feuille dans le classeur
@@ -215,10 +220,10 @@ public class StockService {
             sheet.autoSizeColumn(i);
         }
 
-        // Écriture du contenu dans un fichier
-        String filePath = "C:/Users/inclu/Downloads/stock_export.xlsx";
-        try (FileOutputStream outputStream = new FileOutputStream(filePath)) {
+        // Créer un flux de sortie pour écrire les données dans un tableau de bytes
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
+            return outputStream.toByteArray();
         }
     }
 
@@ -226,7 +231,7 @@ public class StockService {
 
 
 
-    public void exportStocksByCompteToExcel(Long accountId) throws IOException {
+    public byte[] exportStocksByCompteToExcel(Long accountId) throws IOException {
         // Récupérer tous les stocks liés au compte
         List<Stock> stocks = stockRepository.findByCompteIdcompte(accountId);
 
@@ -260,8 +265,11 @@ public class StockService {
         }
 
         // Exporter les données vers Excel
-        exportStocksToExcel(stockExportDTOs);
+        byte[] excelData = exportStocksToExcel(stockExportDTOs);
+
+        return excelData;
     }
+
 
     public String getProductNameById(Long id) {
         Produit produit = productService.getProduitById(id);

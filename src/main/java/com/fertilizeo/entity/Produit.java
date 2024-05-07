@@ -33,9 +33,11 @@ public class Produit {
     private Compte compte;
     @JsonManagedReference
     @OneToOne(fetch = FetchType.LAZY) // Assurez-vous que le fetch type est correctement configuré
-    @JoinColumn(name="id_stock")
+    @JoinColumn(name = "id_stock")
     private Stock stock;
+
 
     @OneToMany(mappedBy = "produit")
     private List<Panier> Panier;
+
 }
