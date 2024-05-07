@@ -1,8 +1,10 @@
 package com.fertilizeo.controller;
 
-import com.fertilizeo.entity.Commande;
-import com.fertilizeo.entity.Panier;
+import com.fertilizeo.entity.*;
+import com.fertilizeo.repository.CompteRepository;
+import com.fertilizeo.repository.PanierRepository;
 import com.fertilizeo.service.CommandeService;
+import com.fertilizeo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,16 @@ import java.util.List;
 public class CommandeController {
 
     @Autowired
+    CompteRepository compteRepository;
+
+    @Autowired
     private CommandeService commandeService;
+
+    @Autowired
+    private PanierRepository panierRepository;
+
+    @Autowired
+    ProductService productService;
 
     @PutMapping("/{id}")
     public Commande updateCommande(@PathVariable Long id, @RequestBody Commande commande) {
@@ -38,32 +49,54 @@ public class CommandeController {
 
         for (Panier panier : paniers) {
             panier.setCommande(nouvelleCommande);
+
         }
 
         return commandeService.save(nouvelleCommande);
     }
 
-    @PostMapping("/addCommande")
-    public ResponseEntity<Commande> createCommande(@RequestBody List<Panier> paniers) {
+    @PostMapping("/addCommande/{id}")
+    public ResponseEntity<Commande> createCommande(@RequestBody List<PanierDto> paniers, @PathVariable Long id ){
         if (paniers == null || paniers.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
         Commande nouvelleCommande = new Commande();
         nouvelleCommande.setDateCommande(LocalDateTime.now());
-        nouvelleCommande.setPaniers(paniers);
 
-        for (Panier panier : paniers) {
-            panier.setCommande(nouvelleCommande);
+        Compte compte = compteRepository.findById(id) .orElseThrow(() -> new RuntimeException("Compte non trouvé avec ID : " ));
+
+        Commande c = new Commande();
+        c.setCompte(compte);
+        c.setDateCommande(LocalDateTime.now());
+
+
+        commandeService.save(c);
+
+        System.out.println("ty : " + paniers.size());
+
+        for (PanierDto panier : paniers) {
+            Produit prod = productService.getProduitById(panier.getIdproduit());
+            Panier panier1 = new Panier();
+            panier1.setProduit(prod);
+           panier1.setCommande(c);
+            panier1.setPrix(panier.getPrice());
+            panier1.setNom(panier.getName());
+            panier1.setQuantite(panier.getQuantity());
+            System.out.println("ato");
+            System.out.println(panier);
+
+
+            panierRepository.save(panier1);
         }
 //
 //        // Mettre à jour l'ID du compte dans la session ID
 //        Long compteId = paniers.get(0).getCompte().getIdcompte();
 //        nouvelleCommande.setCompte(new Compte(compteId));
 
-        Commande savedCommande = commandeService.save(nouvelleCommande);
+//        Commande savedCommande = commandeService.save(nouvelleCommande);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCommande);
+        return ResponseEntity.status(HttpStatus.CREATED).body(c);
     }
 
     @GetMapping

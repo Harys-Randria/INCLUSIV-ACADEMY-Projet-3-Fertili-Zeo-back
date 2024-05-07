@@ -1,5 +1,6 @@
 package com.fertilizeo.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,13 +16,17 @@ public class Panier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Compte compte;
-
+    @JsonProperty("quantity")
     private int quantite;
 
+    @JsonProperty("price")
+    private int prix;
+
+    @JsonProperty("name")
+    private String nom;
+
     @ManyToOne
-    @JoinColumn(name = "produit_id")
+    @JoinColumn(name = "idproduit")
     private Produit produit;
 
     @ManyToOne
