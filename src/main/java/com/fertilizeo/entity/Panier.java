@@ -25,6 +25,9 @@ public class Panier {
     @JsonProperty("name")
     private String nom;
 
+    @JsonProperty("somme")
+    private double total;
+
     @ManyToOne
     @JoinColumn(name = "idproduit")
     private Produit produit;
@@ -32,4 +35,14 @@ public class Panier {
     @ManyToOne
     @JoinColumn(name = "commande_id")
     private Commande commande;
+
+    public void updateStockQuantity() {
+        if (produit != null && quantite > 0) {
+            Stock stock = produit.getStock();
+            if (stock != null) {
+                int updatedQuantity = stock.getQuantity() - quantite;
+                stock.setQuantity(updatedQuantity);
+            }
+        }
+    }
 }

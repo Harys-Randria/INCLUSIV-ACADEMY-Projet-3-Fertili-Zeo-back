@@ -56,7 +56,7 @@ public class CommandeController {
     }
 
     @PostMapping("/addCommande/{id}")
-    public ResponseEntity<Commande> createCommande(@RequestBody List<PanierDto> paniers, @PathVariable Long id ){
+    public ResponseEntity<Commande> createCommande(@RequestBody List<PanierDto> paniers, @PathVariable Long id) {
         if (paniers == null || paniers.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -64,37 +64,26 @@ public class CommandeController {
         Commande nouvelleCommande = new Commande();
         nouvelleCommande.setDateCommande(LocalDateTime.now());
 
-        Compte compte = compteRepository.findById(id) .orElseThrow(() -> new RuntimeException("Compte non trouvé avec ID : " ));
+        Compte compte = compteRepository.findById(id).orElseThrow(() -> new RuntimeException("Compte non trouvé avec ID : "));
 
         Commande c = new Commande();
         c.setCompte(compte);
         c.setDateCommande(LocalDateTime.now());
 
-
         commandeService.save(c);
-
-        System.out.println("ty : " + paniers.size());
 
         for (PanierDto panier : paniers) {
             Produit prod = productService.getProduitById(panier.getIdproduit());
             Panier panier1 = new Panier();
             panier1.setProduit(prod);
-           panier1.setCommande(c);
+            panier1.setCommande(c);
             panier1.setPrix(panier.getPrice());
             panier1.setNom(panier.getName());
             panier1.setQuantite(panier.getQuantity());
-            System.out.println("ato");
-            System.out.println(panier);
-
+            panier1.setTotal(panier.getQuantity() * panier.getPrice());
 
             panierRepository.save(panier1);
         }
-//
-//        // Mettre à jour l'ID du compte dans la session ID
-//        Long compteId = paniers.get(0).getCompte().getIdcompte();
-//        nouvelleCommande.setCompte(new Compte(compteId));
-
-//        Commande savedCommande = commandeService.save(nouvelleCommande);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(c);
     }

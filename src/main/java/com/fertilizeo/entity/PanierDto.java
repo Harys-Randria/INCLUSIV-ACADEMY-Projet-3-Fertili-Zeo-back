@@ -16,4 +16,6 @@ public class PanierDto {
     private int price;
 
     private String name;
+
+    private double somme;
 }
