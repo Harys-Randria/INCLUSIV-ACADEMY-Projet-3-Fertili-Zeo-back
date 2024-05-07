@@ -1,6 +1,6 @@
 package com.fertilizeo.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,9 +31,9 @@ public class Produit {
     @ManyToOne
     @JoinColumn(name = "id_compte")
     private Compte compte;
-
-    @JsonBackReference
-    @OneToOne(mappedBy = "produit")
+    @JsonManagedReference
+    @OneToOne(fetch = FetchType.LAZY) // Assurez-vous que le fetch type est correctement configuré
+    @JoinColumn(name="id_stock")
     private Stock stock;
 
     @OneToMany(mappedBy = "produit")

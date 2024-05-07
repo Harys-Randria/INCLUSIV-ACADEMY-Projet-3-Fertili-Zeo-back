@@ -1,5 +1,6 @@
 package com.fertilizeo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,6 @@ public class Stock {
 
     private Integer quantity;
 
-
     @ManyToOne
     @JoinColumn(name = "compte_id")
     private Compte compte;
@@ -27,4 +27,3 @@ public class Stock {
     private Produit produit;
 
 }
-

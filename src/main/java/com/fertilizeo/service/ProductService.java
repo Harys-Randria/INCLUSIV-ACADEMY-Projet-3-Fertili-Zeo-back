@@ -1,7 +1,9 @@
 package com.fertilizeo.service;
 
 import com.fertilizeo.entity.Produit;
+import com.fertilizeo.entity.Stock;
 import com.fertilizeo.repository.ProductRepository;
+import com.fertilizeo.repository.StockRepository;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class ProductService {
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
+    StockRepository stockRepository;
 
 
 
@@ -79,20 +84,24 @@ public class ProductService {
         return "data:image/jpeg;base64," + base64Image; // Format d'URL pour les données Base64
     }
 
-    // public void saveImageUrl(Long idproduit, String imageUrl) {
-    //     Optional<Produit> optionalProduct = productRepository.findById(idproduit);
-    //     if (optionalProduct.isPresent()) {
-    //         Produit existingProduct = optionalProduct.get();
-    //         existingProduct.setImageUrl(imageUrl);
-    //         productRepository.save(existingProduct);
-    //     } else {
-    //         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit non trouvé avec l'ID : " + idproduit);
-    //     }
-    // }
+
 
     public Produit getProduitById(Long id) {
         return productRepository.findById(id).orElse(null);
     }
+
+
+
+    public List<Produit> getAllProductsWithStock() {
+        List<Produit> products = productRepository.findAllProductsWithStock();
+        // Récupérer la quantité de stock pour chaque produit
+        for (Produit product : products) {
+            Optional<Stock> optionalStock = stockRepository.findByProduitIdproduit(product.getIdproduit());
+            optionalStock.ifPresent(stock -> product.setStock(stock));
+        }
+        return products;
+    }
+
 
     public List<Produit> getProductIdsByAccountId(Long idCompte) {
         return productRepository.findIdsByCompte_Idcompte(idCompte); // Utilisation de "idcompte" au lieu de "id"

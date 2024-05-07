@@ -1,9 +1,7 @@
 package com.fertilizeo.service;
 
-import com.fertilizeo.entity.Compte;
-import com.fertilizeo.entity.Produit;
-import com.fertilizeo.entity.Stock;
-import com.fertilizeo.entity.StockExportDTO;
+import com.fertilizeo.entity.*;
+import com.fertilizeo.repository.StockHistoryRepository;
 import com.fertilizeo.repository.StockRepository;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +33,11 @@ public class StockService {
 
     @Autowired
     private CompteService compteService;
+
+    @Autowired
+    private StockHistoryRepository stockHistoryRepository;
+
+
 
     // Ajoutez ce constructeur pour injecter ProductService
     public StockService(StockRepository stockRepository, ProductService productService, CompteService compteService) {
@@ -152,8 +156,23 @@ public class StockService {
         return stockRepository.findByCompteIdcompte(compteId);
     }
 
-    public Optional<Stock> getStockByProduitId(Long produitId) {
-        return stockRepository.findByProduitIdproduit(produitId);
+    public List<StockHistory> getStockHistoryByProductId(Long productId) {
+        // Récupérer tous les enregistrements de l'historique de stock associés à un produit spécifique
+        Produit produit = new Produit();
+        produit.setIdproduit(productId);
+        Optional<Stock> stockOptional = stockRepository.findByProduit(produit);
+        if (stockOptional.isPresent()) {
+            Stock stock = stockOptional.get();
+            return stockHistoryRepository.findByStockId(stock.getIdstock());
+        } else {
+            return Collections.emptyList(); // Retourner une liste vide si aucun stock n'est trouvé pour le produit
+        }
+    }
+
+
+    public int getStockQuantityByProductId(Long productId) {
+        Optional<Stock> stockOptional = stockRepository.findByProduitIdproduit(productId);
+        return stockOptional.map(Stock::getQuantity).orElse(0);
     }
 
     public void saveOrUpdateStock(Stock stock) {
@@ -168,19 +187,32 @@ public class StockService {
 
         // Création de l'en-tête
         Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Product ID");
-        headerRow.createCell(1).setCellValue("Product Name");
-        headerRow.createCell(2).setCellValue("Account Name");
-        headerRow.createCell(3).setCellValue("Quantity");
+        headerRow.createCell(0).setCellValue("ID");
+        headerRow.createCell(1).setCellValue("Date");
+        headerRow.createCell(2).setCellValue("Product Name");
+        headerRow.createCell(3).setCellValue("Account Name");
+        headerRow.createCell(4).setCellValue("Stock Initial");
+        headerRow.createCell(5).setCellValue("Stock Final");
+        headerRow.createCell(6).setCellValue("Type de Mouvement");
+        headerRow.createCell(7).setCellValue("Quantité Changée");
 
         // Remplissage des données
         int rowNum = 1;
         for (StockExportDTO stockExportDTO : stockExportDTOs) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(stockExportDTO.getProductId());
-            row.createCell(1).setCellValue(stockExportDTO.getProductName());
-            row.createCell(2).setCellValue(stockExportDTO.getAccountName());
-            row.createCell(3).setCellValue(stockExportDTO.getQuantity());
+            row.createCell(1).setCellValue(stockExportDTO.getStockHistory().get(0).getDate().toString());
+            row.createCell(2).setCellValue(stockExportDTO.getProductName());
+            row.createCell(3).setCellValue(stockExportDTO.getAccountName());
+            row.createCell(4).setCellValue(stockExportDTO.getStockInitial());
+            row.createCell(5).setCellValue(stockExportDTO.getStockFinal());
+            row.createCell(6).setCellValue(stockExportDTO.getMouvementType());
+            row.createCell(7).setCellValue(stockExportDTO.getQuantityChanged());
+        }
+
+        // Ajuster la largeur des colonnes
+        for (int i = 0; i < 8; i++) {
+            sheet.autoSizeColumn(i);
         }
 
         // Écriture du contenu dans un fichier
@@ -189,6 +221,10 @@ public class StockService {
             workbook.write(outputStream);
         }
     }
+
+
+
+
 
     public void exportStocksByCompteToExcel(Long accountId) throws IOException {
         // Récupérer tous les stocks liés au compte
@@ -200,15 +236,27 @@ public class StockService {
         // Boucler sur les stocks récupérés
         for (Stock stock : stocks) {
             // Obtenir le nom du produit, l'ID du produit et le nom du compte
-            String productName = getProductNameById(stock.getProduit().getIdproduit());
+            String productName = stock.getProduit().getName();
             long productId = stock.getProduit().getIdproduit();
-            String accountName = getAccountNameById(stock.getCompte().getIdcompte());
+            String accountName = stock.getCompte().getName();
 
-            // Créer un objet DTO d'export avec les informations nécessaires
-            StockExportDTO stockExportDTO = new StockExportDTO(productName, accountName, stock.getQuantity(), productId);
+            // Récupérer l'historique de stock pour ce stock
+            List<StockHistory> stockHistoryList = stockHistoryRepository.findByStockId(stock.getIdstock());
 
-            // Ajouter l'objet DTO à la liste
-            stockExportDTOs.add(stockExportDTO);
+            // Vérifier si l'historique de stock est vide
+            if (!stockHistoryList.isEmpty()) {
+                // Parcourir l'historique de stock pour obtenir les informations de mouvement
+                for (StockHistory history : stockHistoryList) {
+                    // Créer un objet DTO d'export avec les informations nécessaires
+                    StockExportDTO stockExportDTO = new StockExportDTO(
+                            productName, accountName, stock.getQuantity(), productId,
+                            history.getInitialStock(), history.getFinalStock(),
+                            history.getMouvementType(), history.getQuantityChange(), stockHistoryList);
+
+                    // Ajouter l'objet DTO à la liste
+                    stockExportDTOs.add(stockExportDTO);
+                }
+            }
         }
 
         // Exporter les données vers Excel
