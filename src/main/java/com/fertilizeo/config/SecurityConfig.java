@@ -23,12 +23,10 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Autowired
     UserDetailsServiceImpl userDetailsService;
-
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
@@ -47,10 +45,9 @@ public class SecurityConfig implements WebMvcConfigurer {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers("/compte/add/users", "/commandes/**","/panier/**", "/compte/register", "/compte/register", "/compte/**", "/fournisseurs/**", "/client/**", "/produit/**", "/produit/ajouter", "/stock/**")
+                                .requestMatchers("/compte/add/users", "/commandes/**","/panier/**", "/compte/register", "/compte/register", "/compte/**", "/fournisseurs/**", "/client/**", "/produit/**", "/produit/ajouter", "/stock/**","/api/payment/**")
                                 .permitAll().requestMatchers(
                                         PathRequest.toStaticResources().atCommonLocations()).permitAll().anyRequest().authenticated()
-
 
                 );
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

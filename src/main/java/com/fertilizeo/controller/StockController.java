@@ -47,16 +47,16 @@ public class StockController {
         this.stockService = stockService;
     }
 
-    @GetMapping("/{produitId}")
-    public ResponseEntity<Integer> getQuantiteEnStock(@PathVariable Long idproduit) {
-        Produit produit = productService.getProduitById(idproduit);
-        if (produit != null) {
+    //@GetMapping("/quantity/{idproduit}")
+    //public ResponseEntity<Integer> getQuantiteEnStock(@PathVariable Long idproduit) {
+      //  Produit produit = productService.getProduitById(idproduit);
+      //  if (produit != null) {
 
-            int quantiteEnStock = stockService.getQuantiteEnStock(produit);
-            return ResponseEntity.ok(quantiteEnStock);
-        }
-        return ResponseEntity.notFound().build();
-    }
+           // int quantiteEnStock = stockService.getQuantiteEnStock(produit);
+           // return ResponseEntity.ok(quantiteEnStock);
+       // }
+       // return ResponseEntity.notFound().build();
+    //}
 
     @GetMapping("/du_produit/{produitId}")
     public ResponseEntity<Long> getStockQuantityByProduitId(@PathVariable Long produitId) {
