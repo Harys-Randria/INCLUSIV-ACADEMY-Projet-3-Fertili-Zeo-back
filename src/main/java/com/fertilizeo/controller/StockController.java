@@ -70,14 +70,55 @@ public class StockController {
     }
 
     @PostMapping("/augmenter/{produitId}")
-    public ResponseEntity<Void> augmenterStock(@PathVariable Long idproduit, @RequestParam Integer quantity) {
-        Produit produit = productService.getProduitById(idproduit);
-        if (produit != null) {
+    public Stock augmenterStock(@PathVariable Long produitId, @RequestParam Integer quantity) {
+        Produit produit = productService.getProduitById(produitId);
+        Optional<Stock> currentStockOptional = stockRepository.findByProduit(produit);
+        if (currentStockOptional.isPresent()) {
+            Stock currentStock = currentStockOptional.get();
 
-            stockService.augmenterStock(produit, quantity);
-            return ResponseEntity.ok().build();
+            // Récupérer le stock initial
+            int initialStock = currentStock.getQuantity();
+
+            // Vérifier si le stock est suffisant pour l'achat
+
+                // Mettre à jour le stock
+                currentStock.setQuantity(currentStock.getQuantity() + quantity);
+                Stock updatedStock = stockRepository.save(currentStock);
+
+                // Enregistrer l'historique de stock pour l'achat
+                StockHistory stockHistory = new StockHistory();
+                stockHistory.setStock(updatedStock);
+                stockHistory.setQuantityChange(+quantity); // Quantité négative pour un achat
+                stockHistory.setDate(new Date());
+                stockHistory.setMouvementType("Approvisionnement");
+
+                // Stock initial avant l'achat
+                stockHistory.setInitialStock(initialStock);
+
+                // Stock final après l'achat
+                stockHistory.setFinalStock(updatedStock.getQuantity());
+
+                stockHistoryRepository.save(stockHistory);
+
+                // Créer un objet StockExportDTO pour la sortie
+                StockExportDTO stockExportDTO = new StockExportDTO(
+                        updatedStock.getProduit().getName(),
+                        updatedStock.getCompte().getName(),
+                        updatedStock.getQuantity(),
+                        produitId,
+                        initialStock,
+                        updatedStock.getQuantity(),
+                        "Achat", // Type de mouvement
+                        +quantity, // Quantité changée
+                        Arrays.asList(stockHistory) // Mettre l'historique dans une liste
+                );
+
+                // Vous pouvez retourner le stock exporté si vous en avez besoin
+                // return stockExportDTO;
+
+                return updatedStock;
         } else {
-            return ResponseEntity.notFound().build();
+            return null;
         }
     }
 

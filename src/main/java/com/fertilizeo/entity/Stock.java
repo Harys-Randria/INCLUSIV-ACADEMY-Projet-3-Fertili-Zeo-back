@@ -23,6 +23,7 @@ public class Stock {
 
 
     @OneToOne
+    @JsonBackReference
     @JoinColumn(name = "produit_id", referencedColumnName = "idproduit")
     private Produit produit;
 
