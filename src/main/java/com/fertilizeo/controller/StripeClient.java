@@ -1,8 +1,10 @@
 package com.fertilizeo.controller;
 
+
 import com.stripe.Stripe;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -11,8 +13,9 @@ import java.util.Map;
 @Component
 public class StripeClient {
 
-    public StripeClient() {
-        Stripe.apiKey = "sk_test_51PCQ0ERr9SFVCAJbqmkdOjpsThZhktADKYnXW60hB5er5KpXH0MFO7jDTyMpC9AY1xBjhLaJ2qOYCR6PLY7QHg7w00MjbRpagZ";
+    @Autowired
+    StripeClient() {
+        Stripe.apiKey = "sk_test_51PDSi0HGXSt2b5ZnBaZybV2oHhlVwNybCgbbFbj69JsNR5xBV0stJYlP2O3yykkHwMGxyvf3jPi7LWUFK07TXxzt00ypkALzq0";
     }
 
     public Customer createCustomer(String token, String email) throws Exception {
@@ -21,17 +24,21 @@ public class StripeClient {
         customerParams.put("source", token);
         return Customer.create(customerParams);
     }
+
     private Customer getCustomer(String id) throws Exception {
         return Customer.retrieve(id);
     }
+
     public Charge chargeNewCard(String token, double amount) throws Exception {
         Map<String, Object> chargeParams = new HashMap<String, Object>();
         chargeParams.put("amount", (int)(amount * 100));
-        chargeParams.put("currency", "USD");
+        chargeParams.put("currency", "MGA");
         chargeParams.put("source", token);
         Charge charge = Charge.create(chargeParams);
+
         return charge;
     }
+
     public Charge chargeCustomerCard(String customerId, int amount) throws Exception {
         String sourceCard = getCustomer(customerId).getDefaultSource();
         Map<String, Object> chargeParams = new HashMap<String, Object>();

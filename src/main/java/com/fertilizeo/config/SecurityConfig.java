@@ -46,7 +46,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(
                         request -> request
 
-                                .requestMatchers("/compte/add/users","/compte/register", "/compte/**","/fournisseurs/**", "/client/**", "/produit/**", "/produit/ajouter","/stock/**").permitAll().requestMatchers(
+                                .requestMatchers("/compte/add/users","/compte/register", "/compte/**","/fournisseurs/**", "/client/**", "/produit/**", "/produit/ajouter","/stock/**","/api/payment/**").permitAll().requestMatchers(
                                         PathRequest.toStaticResources().atCommonLocations()).permitAll().anyRequest().authenticated()
 
                 );
